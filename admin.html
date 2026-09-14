@@ -969,7 +969,7 @@
             error: productsError
         } = await marketSupabase
             .from('products')
-            .select('id,name,price,description,unit,stock,available,category,image_url,created_at,updated_at')
+            .select('id,name,price,description,unit,stock,available,is_active,category,image_url,created_at,updated_at')
             .order('created_at', {
                 ascending: false
             });
@@ -979,8 +979,9 @@
         }
 
         products = (productsData || []).map(p => ({
-            id: p.id,
-            name: p.name || '',
+    id: p.id,
+    name: p.name || '',
+    is_active: p.is_active !== false,
             price: Number(p.price || 0),
             description: p.description || '',
             unit: p.unit || '',
