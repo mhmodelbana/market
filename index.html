@@ -406,7 +406,11 @@
                 const [settingsResult, categoriesResult, productsResult] = await Promise.all([
                     supabaseClient.from('store_settings').select('*').limit(1),
                     supabaseClient.from('categories').select('*').order('display_order', { ascending: true }),
-                    supabaseClient.from('products').select('*').order('created_at', { ascending: false })
+                    supabaseClient
+    .from('products')
+    .select('*')
+    .eq('is_active', true)
+    .order('created_at', { ascending: false })
                 ]);
 
                 const settingsData = settingsResult.data && settingsResult.data[0];
