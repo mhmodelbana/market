@@ -1750,7 +1750,52 @@
     // =========================================================
     // PRODUCTS LIST
     // =========================================================
+async function toggleProductVisibility(id) {
+    const product = products.find(p => String(p.id) === String(id));
 
+    if (!product) {
+        return;
+    }
+
+    const nextState = product.is_active === false;
+
+    try {
+        const { error } = await marketSupabase
+            .from('products')
+            .update({
+                is_active: nextState
+            })
+            .eq('id', id);
+
+        if (error) {
+            throw error;
+        }
+
+        await refreshAdminData();
+
+        showAlert(
+            nextState ? 'تم الإظهار' : 'تم الإخفاء',
+            nextState
+                ? 'المنتج أصبح ظاهرًا للعملاء'
+                : 'المنتج أصبح مخفيًا من الموقع',
+            nextState ? 'fa-eye' : 'fa-eye-slash',
+            nextState
+                ? 'bg-green-100 text-green-600'
+                : 'bg-slate-100 text-slate-600'
+        );
+
+    } catch (error) {
+        console.error('toggleProductVisibility error:', error);
+
+        showAlert(
+            'خطأ',
+            error.message || 'حدث خطأ أثناء تغيير حالة المنتج',
+            'fa-xmark',
+            'bg-red-100 text-red-600'
+        );
+    }
+}
+    
     function renderAdminProductsList() {
 
         document.getElementById('adminProdCount').innerText =
