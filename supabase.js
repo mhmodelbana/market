@@ -47,6 +47,14 @@ window.marketSupabase = window.supabase.createClient(
             script.async = false;
             document.head.appendChild(script);
         }
+
+        if (!document.getElementById('hamasaAdminConfirmBridge')) {
+            const confirmBridge = document.createElement('script');
+            confirmBridge.id = 'hamasaAdminConfirmBridge';
+            confirmBridge.src = './admin-confirm-bridge.js';
+            confirmBridge.async = false;
+            document.head.appendChild(confirmBridge);
+        }
     }
 })();
 
