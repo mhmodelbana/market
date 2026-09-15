@@ -11,13 +11,30 @@ window.marketSupabase = window.supabase.createClient(
     SUPABASE_PUBLISHABLE_KEY
 );
 
-// weighted-products.js is loaded explicitly by index.html.
-// Do not use document.write here; it can replace the document during loading.
+// Load the weighted-selling extension safely.
+// Never use document.write because it can replace the document while parsing.
+(function loadWeightedLayer() {
+    if (!document.getElementById('hamasaWeightedCss')) {
+        const link = document.createElement('link');
+        link.id = 'hamasaWeightedCss';
+        link.rel = 'stylesheet';
+        link.href = './weighted-products-ui.css';
+        document.head.appendChild(link);
+    }
+
+    if (!document.getElementById('hamasaWeightedScript')) {
+        const script = document.createElement('script');
+        script.id = 'hamasaWeightedScript';
+        script.src = './weighted-products.js';
+        script.async = false;
+        document.head.appendChild(script);
+    }
+})();
 
 document.addEventListener('DOMContentLoaded', function () {
     const W = window.HamasaWeighted;
     if (!W) {
-        console.warn('Hamasa weighted layer not loaded');
+        console.warn('Hamasa weighted layer not loaded yet');
         return;
     }
 
