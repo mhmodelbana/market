@@ -363,21 +363,27 @@
         };
 
         function escapeHTML(value = '') {
-            return String(value)
-                .replaceAll('&', '&amp;')
-                .replaceAll('<', '&lt;')
-                .replaceAll('>', '&gt;')
-                .replaceAll('"', '&quot;')
-                .replaceAll("'", '&#039;');
-        }
+    return String(value)
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#039;');
+}
 
-        let products = [];
-        let categories = [{ id: 'all', name: 'الكل', icon: 'fa-border-all' }];
-        let STORE_CONFIG = { ...DEFAULT_STORE_CONFIG };
-        let cart = [];
-        let currentCategory = 'all';
-        let searchQuery = '';
-        let currentSort = 'default';
+function formatPrice(price) {
+    return Number(price || 0).toLocaleString('en-US', {
+        maximumFractionDigits: 2
+    });
+}
+
+let products = [];
+let categories = [{ id: 'all', name: 'الكل', icon: 'fa-border-all' }];
+let STORE_CONFIG = { ...DEFAULT_STORE_CONFIG };
+let cart = [];
+let currentCategory = 'all';
+let searchQuery = '';
+let currentSort = 'default';
 
         function normalizeCart(items = []) {
             const map = new Map();
@@ -593,7 +599,7 @@
                 </div>
 
                 <div class="text-xs text-brand-600 font-bold mt-1">
-                    ${Number(product.price || 0).toLocaleString('ar-EG')} ج.م
+                    ${formatPrice(product.price)} ج.م
                 </div>
             </div>
 
@@ -758,11 +764,11 @@
                             <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between">
                                 <div>
                                     <div class="flex items-baseline gap-1.5">
-                                        <span class="text-base sm:text-lg font-black text-brand-600">${Number(product.price).toLocaleString('ar-EG')}</span>
+                                       <span class="text-base sm:text-lg font-black text-brand-600">${formatPrice(product.price)}</span>
                                         <span class="text-[10px] font-bold text-slate-400">ج.م / ${escapeHTML(product.unit)}</span>
                                     </div>
                                     ${product.oldPrice && product.oldPrice > product.price ? `
-                                        <span class="text-xs text-slate-400 line-through">${Number(product.oldPrice).toLocaleString('ar-EG')} ج.م</span>
+                                        <span class="text-xs text-slate-400 line-through">${formatPrice(product.oldPrice)} ج.م</span>
                                     ` : ''}
                                 </div>
 
@@ -906,9 +912,9 @@
             badge.className = `absolute -top-2 -left-2 bg-accent-500 text-white text-xs w-6 h-6 rounded-full flex items-center justify-center font-black shadow-md border-2 border-white transition-transform ${totalCount > 0 ? 'scale-100' : 'scale-75 opacity-80'}`;
 
             document.getElementById('cartItemsCountHeader').innerText = `${totalCount} منتج في السلة`;
-            document.getElementById('cartSubtotal').innerText = `${subtotal} ج.م`;
-            document.getElementById('cartTotal').innerText = `${total} ج.م`;
-            document.getElementById('cartDeliveryFee').innerText = `${STORE_CONFIG.deliveryFee} ج.م`;
+            document.getElementById('cartSubtotal').innerText = `${formatPrice(subtotal)} ج.م`;
+document.getElementById('cartTotal').innerText = `${formatPrice(total)} ج.م`;
+document.getElementById('cartDeliveryFee').innerText = `${formatPrice(STORE_CONFIG.deliveryFee)} ج.م`;
 
             // Cart Items List
             const list = document.getElementById('cartItemsList');
@@ -930,14 +936,14 @@
                     <img src="${item.image}" alt="${item.name}" class="w-16 h-16 object-cover rounded-2xl bg-slate-100">
                     <div class="flex-1">
                         <h5 class="font-extrabold text-slate-800 text-xs sm:text-sm line-clamp-1">${item.name}</h5>
-                        <p class="text-xs font-bold text-brand-600 mt-0.5">${item.price} ج.م <span class="text-[10px] text-slate-400">/ ${item.unit}</span></p>
+                        <p class="text-xs font-bold text-brand-600 mt-0.5">${formatPrice(item.price)} ج.م <span class="text-[10px] text-slate-400">/ ${item.unit}</span></p>
                         <div class="flex items-center justify-between mt-2">
                             <div class="flex items-center gap-1.5 bg-slate-100 rounded-xl p-1">
                                 <button onclick="updateQty(${item.id}, ${item.qty - 1})" class="w-6 h-6 bg-white rounded-lg text-slate-700 flex items-center justify-center text-xs shadow-sm hover:bg-brand-600 hover:text-white transition-all">-</button>
                                 <span class="text-xs font-black px-1.5 text-slate-800">${item.qty}</span>
                                 <button onclick="updateQty(${item.id}, ${item.qty + 1})" class="w-6 h-6 bg-brand-600 text-white rounded-lg flex items-center justify-center text-xs shadow-sm hover:bg-brand-700 transition-all">+</button>
                             </div>
-                            <span class="text-xs font-black text-slate-900">${item.price * item.qty} ج.م</span>
+                            <span class="text-xs font-black text-slate-900">${formatPrice(item.price * item.qty)} ج.م</span>
                         </div>
                     </div>
                     <button onclick="updateQty(${item.id}, 0)" class="text-slate-300 hover:text-red-500 p-2 transition-colors">
@@ -1003,13 +1009,13 @@
             orderText += `🛍️ *المنتجات المطلوبة:*\n`;
 
             cart.forEach((item, index) => {
-                orderText += `${index + 1}. ${item.name} (${item.qty} ${item.unit}) - ${item.price * item.qty} ج.م\n`;
+                orderText += `${index + 1}. ${item.name} (${item.qty} ${item.unit}) - ${formatPrice(item.price * item.qty)} ج.م\n`;
             });
 
             orderText += `--------------------------\n`;
-            orderText += `💰 *قيمة المنتجات:* ${subtotal} ج.م\n`;
-            orderText += `🚴 *التوصيل:* ${delivery} ج.م\n`;
-            orderText += `🌟 *المجموع الكلي:* ${total} ج.م\n`;
+            orderText += `💰 *قيمة المنتجات:* ${formatPrice(subtotal)} ج.م\n`;
+orderText += `🚴 *التوصيل:* ${formatPrice(delivery)} ج.م\n`;
+orderText += `🌟 *المجموع الكلي:* ${formatPrice(total)} ج.م\n`;
             orderText += `\n✨ تم إرسال الطلب عبر موقع السوبر ماركت الإلكتروني.`;
 
             const encodedURL = `https://wa.me/${STORE_CONFIG.whatsapp}?text=${encodeURIComponent(orderText)}`;
