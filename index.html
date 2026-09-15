@@ -1193,12 +1193,22 @@ let currentSort = 'default';
             ? `
                 <div class="flex items-center gap-2 bg-red-50 border border-red-200 text-red-600 px-3 py-2 rounded-2xl">
                     <i class="fa-solid fa-ban text-xs"></i>
-                    <span class="text-xs font-black">منتهي</span>
+                    <span class="text-xs font-black">
+                        منتهي
+                    </span>
                 </div>
             `
             : qty === 0
                 ? `
-                    
+                    <button
+                        onclick="event.stopPropagation(); addToCart('${escapeHTML(product.id)}')"
+                        class="w-10 h-10 rounded-2xl bg-brand-50 hover:bg-brand-600 text-brand-600 hover:text-white flex items-center justify-center transition-all shadow-sm group-hover:bg-brand-600 group-hover:text-white"
+                        title="أضف للسلة"
+                    >
+                        <i class="fa-solid fa-plus text-sm"></i>
+                    </button>
+                `
+                : `
                     <div class="flex items-center gap-1.5 bg-brand-50 border border-brand-200 rounded-2xl p-1">
 
                         <button
@@ -1221,40 +1231,6 @@ let currentSort = 'default';
 
                     </div>
                 `
-    }
-</div>
-                                
-        <button
-            onclick="event.stopPropagation(); addToCart('${escapeHTML(product.id)}')"
-            class="w-10 h-10 rounded-2xl bg-brand-50 hover:bg-brand-600 text-brand-600 hover:text-white flex items-center justify-center transition-all shadow-sm group-hover:bg-brand-600 group-hover:text-white"
-            title="أضف للسلة"
-        >
-            <i class="fa-solid fa-plus text-sm"></i>
-        </button>
-    `
-    : `
-        <div class="flex items-center gap-1.5 bg-brand-50 border border-brand-200 rounded-2xl p-1">
-            
-            <button
-                onclick="event.stopPropagation(); updateQty('${escapeHTML(product.id)}', ${qty - 1})"
-                class="w-7 h-7 rounded-xl bg-white text-brand-700 hover:bg-brand-600 hover:text-white flex items-center justify-center text-xs shadow-sm transition-all"
-            >
-                <i class="fa-solid fa-minus"></i>
-            </button>
-
-            <span class="text-xs font-black text-slate-800 px-1.5">
-                ${qty}
-            </span>
-
-            <button
-                onclick="event.stopPropagation(); updateQty('${escapeHTML(product.id)}', ${qty + 1})"
-                class="w-7 h-7 rounded-xl bg-brand-600 text-white hover:bg-brand-700 flex items-center justify-center text-xs shadow-sm transition-all"
-            >
-                <i class="fa-solid fa-plus"></i>
-            </button>
-
-        </div>
-    `
     }
 </div>
                             </div>
