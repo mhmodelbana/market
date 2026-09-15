@@ -612,13 +612,12 @@
 
     const searchInput = document.getElementById('desktopSearchInput');
     const suggestionsBox = document.getElementById('desktopSearchSuggestions');
+    const mobileInput = document.getElementById('mobileSearchInput');
 
     if (searchInput) {
         searchInput.value = product.name;
     }
 
-    // دعم البحث من الموبايل لو المستخدم اختار اقتراح لاحقًا
-    const mobileInput = document.getElementById('mobileSearchInput');
     if (mobileInput) {
         mobileInput.value = product.name;
     }
@@ -702,9 +701,28 @@
                         ` : ''}
 
                         <div class="relative w-full pt-[85%] bg-slate-100 overflow-hidden">
-                            <img src="${escapeHTML(product.image)}" alt="${escapeHTML(product.name)}" onerror="this.src='https://placehold.co/400x400/e2e8f0/64748b?text=سوبر+ماركت'" class="product-img absolute inset-0 w-full h-full object-cover">
-                        </div>
+    <img
+        src="${escapeHTML(product.image)}"
+        alt="${escapeHTML(product.name)}"
+        onerror="this.src='https://placehold.co/400x400/e2e8f0/64748b?text=سوبر+ماركت'"
+        class="product-img absolute inset-0 w-full h-full object-cover ${
+            product.available === false ? 'grayscale opacity-60' : ''
+        }"
+    >
 
+    ${
+        product.available === false
+            ? `
+                <div class="absolute inset-0 flex items-center justify-center bg-slate-900/20">
+                    <span class="bg-red-600 text-white px-4 py-2 rounded-2xl text-sm font-black shadow-lg">
+                        <i class="fa-solid fa-ban ml-1"></i>
+                        منتهي
+                    </span>
+                </div>
+            `
+            : ''
+    }
+</div>
                         <div class="p-4 flex-1 flex flex-col justify-between">
                             <div>
                                 <span class="text-[10px] font-bold text-brand-700 bg-brand-50 px-2.5 py-1 rounded-full border border-brand-100 inline-block mb-2">
@@ -727,22 +745,47 @@
                                 </div>
 
                                 <div>
-                                    ${qty === 0 ? `
-                                        <button onclick="addToCart(${product.id})" class="w-10 h-10 rounded-2xl bg-brand-50 hover:bg-brand-600 text-brand-600 hover:text-white flex items-center justify-center transition-all shadow-sm group-hover:bg-brand-600 group-hover:text-white">
-                                            <i class="fa-solid fa-plus text-sm"></i>
-                                        </button>
-                                    ` : `
-                                        <div class="flex items-center gap-1.5 bg-brand-50 border border-brand-200 rounded-2xl p-1">
-                                            <button onclick="updateQty(${product.id}, ${qty - 1})" class="w-7 h-7 rounded-xl bg-white text-brand-700 hover:bg-brand-600 hover:text-white flex items-center justify-center text-xs shadow-sm transition-all">
-                                                <i class="fa-solid fa-minus"></i>
-                                            </button>
-                                            <span class="text-xs font-black text-slate-800 px-1.5">${qty}</span>
-                                            <button onclick="updateQty(${product.id}, ${qty + 1})" class="w-7 h-7 rounded-xl bg-brand-600 text-white hover:bg-brand-700 flex items-center justify-center text-xs shadow-sm transition-all">
-                                                <i class="fa-solid fa-plus"></i>
-                                            </button>
-                                        </div>
-                                    `}
-                                </div>
+    ${
+        product.available === false
+            ? `
+                <div class="flex items-center gap-2 bg-red-50 border border-red-200 text-red-600 px-3 py-2 rounded-2xl">
+                    <i class="fa-solid fa-ban text-xs"></i>
+                    <span class="text-xs font-black">منتهي</span>
+                </div>
+            `
+            : qty === 0
+                ? `
+                    <button
+                        onclick="addToCart(${product.id})"
+                        class="w-10 h-10 rounded-2xl bg-brand-50 hover:bg-brand-600 text-brand-600 hover:text-white flex items-center justify-center transition-all shadow-sm group-hover:bg-brand-600 group-hover:text-white"
+                        title="أضف للسلة"
+                    >
+                        <i class="fa-solid fa-plus text-sm"></i>
+                    </button>
+                `
+                : `
+                    <div class="flex items-center gap-1.5 bg-brand-50 border border-brand-200 rounded-2xl p-1">
+                        <button
+                            onclick="updateQty(${product.id}, ${qty - 1})"
+                            class="w-7 h-7 rounded-xl bg-white text-brand-700 hover:bg-brand-600 hover:text-white flex items-center justify-center text-xs shadow-sm transition-all"
+                        >
+                            <i class="fa-solid fa-minus"></i>
+                        </button>
+
+                        <span class="text-xs font-black text-slate-800 px-1.5">
+                            ${qty}
+                        </span>
+
+                        <button
+                            onclick="updateQty(${product.id}, ${qty + 1})"
+                            class="w-7 h-7 rounded-xl bg-brand-600 text-white hover:bg-brand-700 flex items-center justify-center text-xs shadow-sm transition-all"
+                        >
+                            <i class="fa-solid fa-plus"></i>
+                        </button>
+                    </div>
+                `
+    }
+</div>
                             </div>
                         </div>
                     </div>
@@ -755,23 +798,43 @@
             return cat ? cat.name : 'عام';
         }
 
-        function addToCart(productId) {
-            const product = products.find(p => p.id === productId);
-            if (!product) return;
+       function addToCart(productId) {
+    const product = products.find(
+        p => String(p.id) === String(productId)
+    );
 
-            const existing = cart.find(item => String(item.id) === String(productId));
-            if (existing) {
-                existing.qty = Number(existing.qty || 0) + 1;
-            } else {
-                cart.push({ ...product, qty: 1 });
-            }
+    if (!product) return;
 
-            cart = normalizeCart(cart);
-            saveCart();
-            renderProducts();
-            updateCartUI();
-            showAddToCartNotification(product.name);
-        }
+    if (product.available === false) {
+        showAlert(
+            'المنتج منتهي',
+            'المنتج ده غير متوفر حاليًا',
+            'fa-ban',
+            'bg-red-100 text-red-600'
+        );
+        return;
+    }
+
+    const existing = cart.find(
+        item => String(item.id) === String(productId)
+    );
+
+    if (existing) {
+        existing.qty = Number(existing.qty || 0) + 1;
+    } else {
+        cart.push({
+            ...product,
+            qty: 1
+        });
+    }
+
+    cart = normalizeCart(cart);
+    saveCart();
+    renderProducts();
+    updateCartUI();
+
+    showAddToCartNotification(product.name);
+}
 
         function showAddToCartNotification(productName) {
             // Create notification element
