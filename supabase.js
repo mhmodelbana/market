@@ -29,6 +29,15 @@ window.marketSupabase = window.supabase.createClient(
         script.async = false;
         document.head.appendChild(script);
     }
+
+    // Admin-only visual/UX layer. It does not change the data model.
+    if (/admin\.html$/i.test(location.pathname) && !document.getElementById('hamasaAdminEnhancementsScript')) {
+        const script = document.createElement('script');
+        script.id = 'hamasaAdminEnhancementsScript';
+        script.src = './admin-enhancements.js';
+        script.async = false;
+        document.head.appendChild(script);
+    }
 })();
 
 document.addEventListener('DOMContentLoaded', function () {
