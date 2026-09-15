@@ -1795,110 +1795,244 @@ async function toggleProductVisibility(id) {
         );
     }
 }
-    
-    function renderAdminProductsList() {
 
-        document.getElementById('adminProdCount').innerText =
-            products.length;
+   // =========================================================
+// PRODUCTS LIST
+// =========================================================
 
-        filterAdminProducts();
+async function toggleProductVisibility(id) {
+    const product = products.find(
+        p => String(p.id) === String(id)
+    );
+
+    if (!product) {
+        return;
     }
 
-    function filterAdminProducts() {
+    const nextState = product.is_active === false;
 
-        const searchTerm =
-            (
-                document.getElementById('searchProducts').value ||
-                ''
-            )
-                .trim()
-                .toLowerCase();
+    try {
+        const { error } = await marketSupabase
+            .from('products')
+            .update({
+                is_active: nextState
+            })
+            .eq('id', id);
 
-        const categoryFilter =
-            document.getElementById('filterCategory').value;
-
-        const filtered =
-            products.filter(p => {
-
-                const matchesSearch =
-                    String(p.name || '')
-                        .toLowerCase()
-                        .includes(searchTerm);
-
-                const matchesCategory =
-                    categoryFilter === 'all' ||
-                    p.category === categoryFilter;
-
-                return (
-                    matchesSearch &&
-                    matchesCategory
-                );
-            });
-
-        const list =
-            document.getElementById('adminProductsList');
-
-        if (!filtered.length) {
-
-            list.innerHTML = `
-                <div class="text-center py-8">
-
-                    <div class="w-16 h-16 bg-slate-100 text-slate-400 rounded-full flex items-center justify-center mx-auto mb-3 text-2xl">
-                        <i class="fa-solid fa-box-open"></i>
-                    </div>
-
-                    <p class="text-sm text-slate-500">
-                        لم يتم العثور على منتجات
-                    </p>
-
-                </div>
-            `;
-
-            return;
+        if (error) {
+            throw error;
         }
 
-        list.innerHTML =
-            filtered.map(p => {
+        await refreshAdminData();
 
-                const safeId =
-                    encodeActionId(p.id);
+        showAlert(
+            nextState ? 'تم الإظهار' : 'تم الإخفاء',
+            nextState
+                ? 'المنتج أصبح ظاهرًا للعملاء'
+                : 'المنتج أصبح مخفيًا من الموقع',
+            nextState ? 'fa-eye' : 'fa-eye-slash',
+            nextState
+                ? 'bg-green-100 text-green-600'
+                : 'bg-slate-100 text-slate-600'
+        );
 
-                return `
-                    <div class="flex items-center justify-between p-4 bg-slate-50 border border-slate-200 rounded-xl hover:bg-slate-100 transition-all">
+    } catch (error) {
+        console.error(
+            'toggleProductVisibility error:',
+            error
+        );
 
-                        <div class="flex items-center gap-4 min-w-0">
+        showAlert(
+            'خطأ',
+            error.message ||
+            'حدث خطأ أثناء تغيير حالة المنتج',
+            'fa-xmark',
+            'bg-red-100 text-red-600'
+        );
+    }
+}
 
-                            <img
-                                src="${escapeHTML(p.image)}"
-                                class="w-16 h-16 object-cover rounded-lg bg-slate-200"
-                                onerror="this.src='https://placehold.co/100x100'"
-                            >
+async function toggleProductAvailability(id) {
+    const product = products.find(
+        p => String(p.id) === String(id)
+    );
 
-                            <div class="min-w-0">
+    if (!product) {
+        return;
+    }
 
-                                <h5 class="font-bold text-sm text-slate-800 truncate">
-                                    ${escapeHTML(p.name)}
-                                </h5>
+    const nextState = product.available === false;
 
-                                <p class="text-xs text-slate-500 mt-1">
+    try {
+        const { error } = await marketSupabase
+            .from('products')
+            .update({
+                available: nextState
+            })
+            .eq('id', id);
 
-                                    <span class="font-bold text-brand-600">
-                                        ${Number(p.price).toLocaleString('ar-EG')} ج.م
-                                    </span>
+        if (error) {
+            throw error;
+        }
 
-                                    / ${escapeHTML(p.unit)}
+        await refreshAdminData();
 
-                                    • ${escapeHTML(
-                                        getCategoryName(p.category)
-                                    )}
+        showAlert(
+            nextState ? 'تم التفعيل' : 'تم إنهاء المنتج',
+            nextState
+                ? 'المنتج أصبح متوفرًا للطلب'
+                : 'المنتج أصبح منتهيًا ولن يمكن للعملاء طلبه',
+            nextState ? 'fa-circle-check' : 'fa-ban',
+            nextState
+                ? 'bg-green-100 text-green-600'
+                : 'bg-red-100 text-red-600'
+        );
 
-                                </p>
+    } catch (error) {
+        console.error(
+            'toggleProductAvailability error:',
+            error
+        );
+
+        showAlert(
+            'خطأ',
+            error.message ||
+            'حدث خطأ أثناء تغيير حالة توفر المنتج',
+            'fa-xmark',
+            'bg-red-100 text-red-600'
+        );
+    }
+}
+
+function renderAdminProductsList() {
+
+    document.getElementById('adminProdCount').innerText =
+        products.length;
+
+    filterAdminProducts();
+}
+
+function filterAdminProducts() {
+
+    const searchTerm =
+        (
+            document.getElementById('searchProducts').value ||
+            ''
+        )
+            .trim()
+            .toLowerCase();
+
+    const categoryFilter =
+        document.getElementById('filterCategory').value;
+
+    const filtered =
+        products.filter(p => {
+
+            const matchesSearch =
+                String(p.name || '')
+                    .toLowerCase()
+                    .includes(searchTerm);
+
+            const matchesCategory =
+                categoryFilter === 'all' ||
+                p.category === categoryFilter;
+
+            return (
+                matchesSearch &&
+                matchesCategory
+            );
+        });
+
+    const list =
+        document.getElementById('adminProductsList');
+
+    if (!filtered.length) {
+
+        list.innerHTML = `
+            <div class="text-center py-8">
+
+                <div class="w-16 h-16 bg-slate-100 text-slate-400 rounded-full flex items-center justify-center mx-auto mb-3 text-2xl">
+                    <i class="fa-solid fa-box-open"></i>
+                </div>
+
+                <p class="text-sm text-slate-500">
+                    لم يتم العثور على منتجات
+                </p>
+
+            </div>
+        `;
+
+        return;
+    }
+
+    list.innerHTML =
+        filtered.map(p => {
+
+            const safeId =
+                encodeActionId(p.id);
+
+            return `
+                <div class="flex items-center justify-between p-4 bg-slate-50 border border-slate-200 rounded-xl hover:bg-slate-100 transition-all">
+
+                    <div class="flex items-center gap-4 min-w-0">
+
+                        <img
+                            src="${escapeHTML(p.image)}"
+                            class="w-16 h-16 object-cover rounded-lg bg-slate-200"
+                            onerror="this.src='https://placehold.co/100x100'"
+                        >
+
+                        <div class="min-w-0">
+
+                            <h5 class="font-bold text-sm text-slate-800 truncate">
+                                ${escapeHTML(p.name)}
+                            </h5>
+
+                            <p class="text-xs text-slate-500 mt-1">
+
+                                <span class="font-bold text-brand-600">
+                                    ${Number(p.price).toLocaleString('ar-EG')} ج.م
+                                </span>
+
+                                / ${escapeHTML(p.unit)}
+
+                                • ${escapeHTML(
+                                    getCategoryName(p.category)
+                                )}
+
+                            </p>
+
+                            <div class="flex items-center gap-2 mt-2">
 
                                 ${
                                     p.hasDiscount
                                         ? `
-                                            <span class="text-xs bg-accent-100 text-accent-700 px-2 py-0.5 rounded-full mt-1 inline-block">
+                                            <span class="text-xs bg-accent-100 text-accent-700 px-2 py-0.5 rounded-full font-bold">
                                                 خصم
+                                            </span>
+                                        `
+                                        : ''
+                                }
+
+                                ${
+                                    p.available === false
+                                        ? `
+                                            <span class="text-xs bg-red-100 text-red-600 px-2 py-0.5 rounded-full font-bold">
+                                                منتهي
+                                            </span>
+                                        `
+                                        : `
+                                            <span class="text-xs bg-green-100 text-green-600 px-2 py-0.5 rounded-full font-bold">
+                                                متوفر
+                                            </span>
+                                        `
+                                }
+
+                                ${
+                                    p.is_active === false
+                                        ? `
+                                            <span class="text-xs bg-slate-200 text-slate-600 px-2 py-0.5 rounded-full font-bold">
+                                                مخفي
                                             </span>
                                         `
                                         : ''
@@ -1908,41 +2042,65 @@ async function toggleProductVisibility(id) {
 
                         </div>
 
-                        <div class="flex items-center gap-2 shrink-0">
+                    </div>
 
-    <button
-        onclick="toggleProductVisibility(decodeURIComponent('${safeId}'))"
-        class="${p.is_active === false
-            ? 'text-green-600 hover:text-green-700'
-            : 'text-slate-500 hover:text-slate-700'} p-2 text-sm"
-        title="${p.is_active === false ? 'إظهار المنتج' : 'إخفاء المنتج'}"
-    >
-        <i class="fa-solid ${p.is_active === false ? 'fa-eye' : 'fa-eye-slash'}"></i>
-    </button>
+                    <div class="flex items-center gap-2 shrink-0">
 
-    <button
-        onclick="editProduct(decodeURIComponent('${safeId}'))"
-        class="text-blue-600 hover:text-blue-700 p-2 text-sm"
-        title="تعديل"
-    >
-        <i class="fa-solid fa-pen-to-square"></i>
-    </button>
+                        <button
+                            onclick="toggleProductVisibility(decodeURIComponent('${safeId}'))"
+                            class="${p.is_active === false
+                                ? 'text-green-600 hover:text-green-700'
+                                : 'text-slate-500 hover:text-slate-700'} p-2 text-sm"
+                            title="${p.is_active === false
+                                ? 'إظهار المنتج'
+                                : 'إخفاء المنتج'}"
+                        >
+                            <i class="fa-solid ${
+                                p.is_active === false
+                                    ? 'fa-eye'
+                                    : 'fa-eye-slash'
+                            }"></i>
+                        </button>
 
-    <button
-        onclick="deleteProduct(decodeURIComponent('${safeId}'))"
-        class="text-red-500 hover:text-red-700 p-2 text-sm"
-        title="حذف"
-    >
-        <i class="fa-solid fa-trash-can"></i>
-    </button>
+                        <button
+                            onclick="toggleProductAvailability(decodeURIComponent('${safeId}'))"
+                            class="${p.available === false
+                                ? 'text-green-600 hover:text-green-700'
+                                : 'text-red-500 hover:text-red-600'} p-2 text-sm"
+                            title="${p.available === false
+                                ? 'تفعيل المنتج كمتوفر'
+                                : 'إنهاء المنتج'}"
+                        >
+                            <i class="fa-solid ${
+                                p.available === false
+                                    ? 'fa-circle-check'
+                                    : 'fa-ban'
+                            }"></i>
+                        </button>
 
-</div>
+                        <button
+                            onclick="editProduct(decodeURIComponent('${safeId}'))"
+                            class="text-blue-600 hover:text-blue-700 p-2 text-sm"
+                            title="تعديل"
+                        >
+                            <i class="fa-solid fa-pen-to-square"></i>
+                        </button>
+
+                        <button
+                            onclick="deleteProduct(decodeURIComponent('${safeId}'))"
+                            class="text-red-500 hover:text-red-700 p-2 text-sm"
+                            title="حذف"
+                        >
+                            <i class="fa-solid fa-trash-can"></i>
+                        </button>
 
                     </div>
-                `;
 
-            }).join('');
-    }
+                </div>
+            `;
+
+        }).join('');
+}
 
     function getCategoryName(catId) {
 
