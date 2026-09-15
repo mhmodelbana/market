@@ -404,11 +404,9 @@
 
         /* ==========================================
    STORE OPENING HOURS
-   التحكم من Supabase + لوحة الإدارة
 ========================================== */
 
 let STORE_HOURS = {
-    id: 1,
     mode: 'auto',
     schedule_enabled: true,
     opening_time: '07:00:00',
@@ -417,215 +415,142 @@ let STORE_HOURS = {
     closed_message: 'المتجر مغلق حاليًا. نرجو زيارتنا خلال مواعيد العمل.'
 };
 
-
-// تحميل إعدادات مواعيد العمل من Supabase
 async function loadStoreHours() {
-
-    try {
-
-        const supabaseClient = window.marketSupabase;
-
-if (!supabaseClient) {
-    console.error('Supabase client not found');
-    return;
-}
-
-try {
-
     const supabaseClient = window.marketSupabase;
 
     if (!supabaseClient) {
-        console.error('Supabase client not found');
+        console.error('❌ marketSupabase غير موجود');
         return;
     }
 
-    const { data, error } = await supabaseClient
-        .from('store_hours')
-        .select('*')
-        .eq('id', 1)
-        .maybeSingle();
+    try {
+        const result = await supabaseClient
+            .from('store_hours')
+            .select('*')
+            .eq('id', 1)
+            .maybeSingle();
 
-        if (error) {
-            console.error('Store hours load error:', error);
+        if (result.error) {
+            console.error('❌ Store hours error:', result.error);
             return;
         }
 
-        if (data) {
-
+        if (result.data) {
             STORE_HOURS = {
-                id: data.id,
-
-                mode: data.mode || 'auto',
-
-                schedule_enabled:
-                    data.schedule_enabled !== false,
-
-                opening_time:
-                    data.opening_time || '07:00:00',
-
-                closing_time:
-                    data.closing_time || '02:00:00',
-
-                work_days:
-                    Array.isArray(data.work_days)
-                        ? data.work_days.map(Number)
-                        : [0, 1, 2, 3, 4, 5, 6],
-
-                closed_message:
-                    data.closed_message ||
-                    'المتجر مغلق حاليًا. نرجو زيارتنا خلال مواعيد العمل.'
+                ...STORE_HOURS,
+                ...result.data
             };
 
+            console.log('✅ Store hours loaded:', STORE_HOURS);
         }
 
-        checkStoreOpeningHours();
-
     } catch (error) {
-
-        console.error('Store hours error:', error);
-
+        console.error('❌ Store hours exception:', error);
     }
-
 }
 
+function isStoreOpen() {
 
-// تحويل HH:MM إلى دقائق
-function parseTimeToMinutes(timeString) {
-
-    if (!timeString) {
-        return 0;
-    }
-
-    const parts = String(timeString).split(':');
-
-    const hours = Number(parts[0] || 0);
-    const minutes = Number(parts[1] || 0);
-
-    return (hours * 60) + minutes;
-
-}
-
-
-// حساب حالة المتجر
-function calculateStoreOpenState() {
-
-    // فتح يدوي
     if (STORE_HOURS.mode === 'open') {
         return true;
     }
 
-
-    // غلق يدوي
     if (STORE_HOURS.mode === 'closed') {
         return false;
     }
 
-
-    // لو المواعيد متعطلة = مفتوح
     if (STORE_HOURS.schedule_enabled === false) {
         return true;
     }
 
-
     const now = new Date();
 
-    const currentDay = now.getDay();
+    const day = now.getDay();
 
-    const currentMinutes =
-        (now.getHours() * 60) + now.getMinutes();
+    const current =
+        now.getHours() * 60 +
+        now.getMinutes();
 
+    const opening =
+        Number(STORE_HOURS.opening_time.split(':')[0]) * 60 +
+        Number(STORE_HOURS.opening_time.split(':')[1]);
 
-    const openingMinutes =
-        parseTimeToMinutes(STORE_HOURS.opening_time);
-
-    const closingMinutes =
-        parseTimeToMinutes(STORE_HOURS.closing_time);
-
+    const closing =
+        Number(STORE_HOURS.closing_time.split(':')[0]) * 60 +
+        Number(STORE_HOURS.closing_time.split(':')[1]);
 
     const workDays =
         Array.isArray(STORE_HOURS.work_days)
-            ? STORE_HOURS.work_days
+            ? STORE_HOURS.work_days.map(Number)
             : [0, 1, 2, 3, 4, 5, 6];
 
-
-    // نفس وقت الفتح والغلق = مفتوح طوال اليوم
-    if (openingMinutes === closingMinutes) {
-
-        return workDays.includes(currentDay);
-
-    }
-
-
-    // مواعيد داخل نفس اليوم
-    // مثال 08:00 → 23:00
-    if (openingMinutes < closingMinutes) {
-
-        if (!workDays.includes(currentDay)) {
-            return false;
-        }
+    // 07:00 → 23:00
+    if (opening < closing) {
 
         return (
-            currentMinutes >= openingMinutes &&
-            currentMinutes < closingMinutes
+            workDays.includes(day) &&
+            current >= opening &&
+            current < closing
         );
-
     }
 
+    // 07:00 → 02:00
+    if (current >= opening) {
 
-    // مواعيد تتعدى منتصف الليل
-    // مثال 07:00 → 02:00
-
-    if (currentMinutes >= openingMinutes) {
-
-        return workDays.includes(currentDay);
-
+        return workDays.includes(day);
     }
 
-
-    if (currentMinutes < closingMinutes) {
+    if (current < closing) {
 
         const previousDay =
-            (currentDay + 6) % 7;
+            (day + 6) % 7;
 
         return workDays.includes(previousDay);
-
     }
 
-
     return false;
-
 }
 
-
-// تحديث حالة المتجر في الواجهة
-function updateStoreStatusUI(isOpen) {
-
-    const statusElements =
-        document.querySelectorAll('.store-open-status');
-
-
-    statusElements.forEach(element => {
-
-        element.textContent =
-            isOpen
-                ? 'مفتوح الآن 🟢'
-                : 'مغلق الآن 🔴';
-
-    });
-
-}
-
-
-// فحص حالة المتجر
 function checkStoreOpeningHours() {
 
     const closedScreen =
         document.getElementById('closedScreen');
 
-
     if (!closedScreen) {
+        console.warn('⚠️ closedScreen غير موجود');
         return;
     }
+
+    const open = isStoreOpen();
+
+    console.log(
+        '🏪 Store status:',
+        open ? 'OPEN' : 'CLOSED',
+        STORE_HOURS
+    );
+
+    if (open) {
+
+        closedScreen.classList.add('hidden');
+
+        document.body.style.overflow = '';
+
+    } else {
+
+        closedScreen.classList.remove('hidden');
+
+        document.body.style.overflow = 'hidden';
+
+        const message =
+            document.getElementById('closedStoreMessage');
+
+        if (message) {
+            message.textContent =
+                STORE_HOURS.closed_message ||
+                'المتجر مغلق حاليًا. نرجو زيارتنا خلال مواعيد العمل.';
+        }
+    }
+}
 
 
     const isOpen =
@@ -793,6 +718,7 @@ let currentSort = 'default';
         }
 
         document.addEventListener('DOMContentLoaded', async () => {
+
     loadCart();
 
     await loadStoreHours();
@@ -806,7 +732,8 @@ let currentSort = 'default';
 
     checkStoreOpeningHours();
 
-    setInterval(checkStoreOpeningHours, 60 * 1000);
+    setInterval(checkStoreOpeningHours, 60000);
+
 });
 
         function updateStoreInfo() {
