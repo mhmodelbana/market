@@ -532,11 +532,77 @@
             renderProducts();
         }
 
-        function handleSearch(query) {
-            searchQuery = query.trim().toLowerCase();
-            renderProducts();
-        }
+      function handleSearch(query) {
+    searchQuery = query.trim().toLowerCase();
 
+    renderSearchSuggestions(query);
+
+    renderProducts();
+}
+        function renderSearchSuggestions(query) {
+    const suggestionsBox = document.getElementById('desktopSearchSuggestions');
+
+    if (!suggestionsBox) return;
+
+    const normalizedQuery = String(query || '').trim().toLowerCase();
+
+    if (!normalizedQuery) {
+        suggestionsBox.classList.add('hidden');
+        suggestionsBox.innerHTML = '';
+        return;
+    }
+
+    const matches = products
+        .filter(product => {
+            if (product.is_active === false) return false;
+
+            const name = String(product.name || '').toLowerCase();
+            return name.includes(normalizedQuery);
+        })
+        .slice(0, 5);
+
+    if (!matches.length) {
+        suggestionsBox.innerHTML = `
+            <div class="px-4 py-4 text-sm text-slate-500 text-center">
+                <i class="fa-solid fa-magnifying-glass ml-1"></i>
+                مفيش منتجات مطابقة
+            </div>
+        `;
+
+        suggestionsBox.classList.remove('hidden');
+        return;
+    }
+
+    suggestionsBox.innerHTML = matches.map(product => `
+        <button
+            type="button"
+            onclick="selectSearchSuggestion(${Number(product.id)})"
+            class="w-full flex items-center gap-3 px-4 py-3 text-right hover:bg-slate-50 transition border-b border-slate-100 last:border-b-0"
+        >
+            <img
+                src="${escapeHTML(product.image || '')}"
+                alt=""
+                class="w-10 h-10 rounded-lg object-cover bg-slate-100 shrink-0"
+                onerror="this.style.display='none'"
+            >
+
+            <div class="min-w-0 flex-1">
+                <div class="font-bold text-sm text-slate-800 truncate">
+                    ${escapeHTML(product.name)}
+                </div>
+
+                <div class="text-xs text-brand-600 font-bold mt-1">
+                    ${Number(product.price || 0).toLocaleString('ar-EG')} ج.م
+                </div>
+            </div>
+
+            <i class="fa-solid fa-chevron-left text-xs text-slate-300"></i>
+        </button>
+    `).join('');
+
+    suggestionsBox.classList.remove('hidden');
+}
+        
         function changeSorting(val) {
             currentSort = val;
             renderProducts();
