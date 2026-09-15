@@ -436,32 +436,16 @@ function checkStoreOpeningHours() {
         currentTime < openingTime;
 
     const closedScreen = document.getElementById('closedScreen');
-    const siteContent = document.getElementById('siteContent');
 
-    if (!closedScreen || !siteContent) return;
+if (!closedScreen) return;
 
-    if (isClosed) {
-
-        // إظهار شاشة الإغلاق
-        closedScreen.classList.remove('hidden');
-
-        // إخفاء الموقع بالكامل
-        siteContent.classList.add('hidden');
-
-        // منع الـ Scroll
-        document.body.style.overflow = 'hidden';
-
-    } else {
-
-        // إخفاء شاشة الإغلاق
-        closedScreen.classList.add('hidden');
-
-        // إظهار الموقع
-        siteContent.classList.remove('hidden');
-
-        // السماح بالـ Scroll
-        document.body.style.overflow = '';
-    }
+if (isClosed) {
+    closedScreen.classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+} else {
+    closedScreen.classList.add('hidden');
+    document.body.style.overflow = '';
+}
 }
 
 // فحص الوقت فور فتح الموقع
