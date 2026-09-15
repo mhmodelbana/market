@@ -31,12 +31,22 @@ window.marketSupabase = window.supabase.createClient(
     }
 
     // Admin-only visual/UX layer. It does not change the data model.
-    if (/admin\.html$/i.test(location.pathname) && !document.getElementById('hamasaAdminEnhancementsScript')) {
-        const script = document.createElement('script');
-        script.id = 'hamasaAdminEnhancementsScript';
-        script.src = './admin-enhancements.js';
-        script.async = false;
-        document.head.appendChild(script);
+    if (/admin\.html$/i.test(location.pathname)) {
+        if (!document.getElementById('hamasaAdminStateBridge')) {
+            const bridge = document.createElement('script');
+            bridge.id = 'hamasaAdminStateBridge';
+            bridge.src = './admin-enhancements-bridge.js';
+            bridge.async = false;
+            document.head.appendChild(bridge);
+        }
+
+        if (!document.getElementById('hamasaAdminEnhancementsScript')) {
+            const script = document.createElement('script');
+            script.id = 'hamasaAdminEnhancementsScript';
+            script.src = './admin-enhancements.js';
+            script.async = false;
+            document.head.appendChild(script);
+        }
     }
 })();
 
