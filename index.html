@@ -1198,15 +1198,7 @@ let currentSort = 'default';
             `
             : qty === 0
                 ? `
-                    <button
-                        onclick="event.stopPropagation(); addToCart('${escapeHTML(product.id)}')"
-                        class="w-10 h-10 rounded-2xl bg-brand-50 hover:bg-brand-600 text-brand-600 hover:text-white flex items-center justify-center transition-all shadow-sm group-hover:bg-brand-600 group-hover:text-white"
-                        title="أضف للسلة"
-                    >
-                        <i class="fa-solid fa-plus text-sm"></i>
-                    </button>
-                `
-                : `
+                    
                     <div class="flex items-center gap-1.5 bg-brand-50 border border-brand-200 rounded-2xl p-1">
 
                         <button
