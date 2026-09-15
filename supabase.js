@@ -11,4 +11,8 @@ window.marketSupabase = window.supabase.createClient(
     SUPABASE_PUBLISHABLE_KEY
 );
 
+// حمّل إضافة البيع بالوزن على صفحات المتجر والإدارة.
+// يتم تحميلها هنا قبل DOMContentLoaded حتى تتمكن من توحيد وظائف التطبيق الحالية.
+document.write('<script src="./weighted-products.js"><\/script>');
+
 console.log('Supabase initialized successfully');
