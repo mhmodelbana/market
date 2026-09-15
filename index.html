@@ -423,11 +423,27 @@ async function loadStoreHours() {
 
     try {
 
-        const { data, error } = await supabase
-            .from('store_hours')
-            .select('*')
-            .eq('id', 1)
-            .maybeSingle();
+        const supabaseClient = window.marketSupabase;
+
+if (!supabaseClient) {
+    console.error('Supabase client not found');
+    return;
+}
+
+try {
+
+    const supabaseClient = window.marketSupabase;
+
+    if (!supabaseClient) {
+        console.error('Supabase client not found');
+        return;
+    }
+
+    const { data, error } = await supabaseClient
+        .from('store_hours')
+        .select('*')
+        .eq('id', 1)
+        .maybeSingle();
 
         if (error) {
             console.error('Store hours load error:', error);
@@ -777,13 +793,21 @@ let currentSort = 'default';
         }
 
         document.addEventListener('DOMContentLoaded', async () => {
-            loadCart();
-            await loadStoreData();
-            updateStoreInfo();
-            renderCategories();
-            renderProducts();
-            updateCartUI();
-        });
+    loadCart();
+
+    await loadStoreHours();
+
+    await loadStoreData();
+
+    updateStoreInfo();
+    renderCategories();
+    renderProducts();
+    updateCartUI();
+
+    checkStoreOpeningHours();
+
+    setInterval(checkStoreOpeningHours, 60 * 1000);
+});
 
         function updateStoreInfo() {
             // Update page title
