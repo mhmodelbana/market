@@ -448,62 +448,98 @@ async function loadStoreHours() {
         console.error('❌ Store hours exception:', error);
     }
 }
-
 function isStoreOpen() {
 
+    // فتح يدوي من لوحة الإدارة
     if (STORE_HOURS.mode === 'open') {
         return true;
     }
 
+    // غلق يدوي من لوحة الإدارة
     if (STORE_HOURS.mode === 'closed') {
         return false;
     }
 
+    // لو الجدول متوقف
     if (STORE_HOURS.schedule_enabled === false) {
         return true;
     }
 
     const now = new Date();
 
-    const day = now.getDay();
+    const currentDay = now.getDay();
 
-    const current =
-        now.getHours() * 60 +
-        now.getMinutes();
+    const currentMinutes =
+        (now.getHours() * 60) + now.getMinutes();
 
-    const opening =
-        Number(STORE_HOURS.opening_time.split(':')[0]) * 60 +
-        Number(STORE_HOURS.opening_time.split(':')[1]);
+    const openingParts =
+        String(STORE_HOURS.opening_time || '07:00:00').split(':');
 
-    const closing =
-        Number(STORE_HOURS.closing_time.split(':')[0]) * 60 +
-        Number(STORE_HOURS.closing_time.split(':')[1]);
+    const closingParts =
+        String(STORE_HOURS.closing_time || '02:00:00').split(':');
+
+    const openingMinutes =
+        (Number(openingParts[0]) * 60) +
+        Number(openingParts[1] || 0);
+
+    const closingMinutes =
+        (Number(closingParts[0]) * 60) +
+        Number(closingParts[1] || 0);
 
     const workDays =
         Array.isArray(STORE_HOURS.work_days)
             ? STORE_HOURS.work_days.map(Number)
             : [0, 1, 2, 3, 4, 5, 6];
 
-    // 07:00 → 23:00
-    if (opening < closing) {
+
+    /*
+       لو الفتح والغلق نفس الوقت
+       = مفتوح طوال اليوم في أيام العمل
+    */
+    if (openingMinutes === closingMinutes) {
+        return workDays.includes(currentDay);
+    }
+
+
+    /*
+       مثال:
+       07:00 → 23:00
+    */
+    if (openingMinutes < closingMinutes) {
+
+        if (!workDays.includes(currentDay)) {
+            return false;
+        }
 
         return (
-            workDays.includes(day) &&
-            current >= opening &&
-            current < closing
+            currentMinutes >= openingMinutes &&
+            currentMinutes < closingMinutes
         );
     }
 
-    // 07:00 → 02:00
-    if (current >= opening) {
 
-        return workDays.includes(day);
+    /*
+       مثال:
+       07:00 → 02:00
+
+       من 07:00 لحد 23:59
+       = مفتوح في نفس اليوم
+
+       من 00:00 لحد 01:59
+       = تكملة شغل اليوم السابق
+
+       من 02:00 لحد 06:59
+       = مغلق
+    */
+
+    if (currentMinutes >= openingMinutes) {
+        return workDays.includes(currentDay);
     }
 
-    if (current < closing) {
+    if (currentMinutes < closingMinutes) {
 
         const previousDay =
-            (day + 6) % 7;
+            (currentDay + 6) % 7;
 
         return workDays.includes(previousDay);
     }
@@ -553,43 +589,7 @@ function checkStoreOpeningHours() {
 }
 
 
-    const isOpen =
-        calculateStoreOpenState();
-
-
-    updateStoreStatusUI(isOpen);
-
-
-    if (isOpen) {
-
-        closedScreen.classList.add('hidden');
-
-        document.body.style.overflow = '';
-
-        return;
-
-    }
-
-
-    // المتجر مغلق
-    closedScreen.classList.remove('hidden');
-
-    document.body.style.overflow = 'hidden';
-
-
-    const closedMessage =
-        document.getElementById('closedStoreMessage');
-
-
-    if (closedMessage) {
-
-        closedMessage.textContent =
-            STORE_HOURS.closed_message ||
-            'المتجر مغلق حاليًا. نرجو زيارتنا خلال مواعيد العمل.';
-
-    }
-
-}
+    
         const DEFAULT_STORE_CONFIG = {
             name: "سوبر ماركت حماصه",
             whatsapp: "201144191571",
