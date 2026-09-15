@@ -384,7 +384,175 @@
             </form>
         </div>
     </div>
+<!-- PRODUCT DETAILS MODAL -->
+<div
+    id="productDetailsModal"
+    class="fixed inset-0 z-[60] hidden items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm"
+    onclick="closeProductDetailsOnOverlay(event)"
+>
+    <div
+        id="productDetailsContent"
+        class="bg-white rounded-[2rem] shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden transform scale-95 opacity-0 transition-all duration-300"
+        onclick="event.stopPropagation()"
+    >
 
+        <!-- Header -->
+        <div class="relative">
+
+            <button
+                type="button"
+                onclick="closeProductDetails()"
+                class="absolute top-4 left-4 z-20 w-10 h-10 rounded-full bg-white/90 backdrop-blur shadow-lg text-slate-700 hover:bg-red-50 hover:text-red-600 flex items-center justify-center transition-all"
+            >
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+
+            <!-- Product Image -->
+            <div class="relative bg-slate-100 w-full h-64 sm:h-80">
+                <img
+                    id="productDetailsImage"
+                    src=""
+                    alt=""
+                    class="w-full h-full object-contain"
+                >
+
+                <div
+                    id="productDetailsDiscount"
+                    class="hidden absolute top-4 right-4 bg-accent-500 text-white px-3 py-1.5 rounded-full text-xs font-black shadow-lg"
+                >
+                    خصم
+                </div>
+
+                <div
+                    id="productDetailsUnavailable"
+                    class="hidden absolute inset-0 bg-slate-900/20 items-center justify-center"
+                >
+                    <span class="bg-red-600 text-white px-5 py-2.5 rounded-2xl text-sm font-black shadow-xl">
+                        <i class="fa-solid fa-ban ml-1"></i>
+                        المنتج غير متوفر
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Content -->
+        <div class="p-5 sm:p-7 overflow-y-auto max-h-[calc(90vh-20rem)]">
+
+            <!-- Category + Availability -->
+            <div class="flex items-center justify-between gap-3 mb-3">
+
+                <span
+                    id="productDetailsCategory"
+                    class="text-xs font-bold text-brand-700 bg-brand-50 px-3 py-1.5 rounded-full border border-brand-100"
+                >
+                    عام
+                </span>
+
+                <span
+                    id="productDetailsAvailability"
+                    class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-black"
+                >
+                    <i class="fa-solid fa-circle-check"></i>
+                    متوفر
+                </span>
+
+            </div>
+
+            <!-- Product Name -->
+            <h2
+                id="productDetailsName"
+                class="text-2xl sm:text-3xl font-black text-slate-900 leading-tight"
+            >
+                اسم المنتج
+            </h2>
+
+            <!-- Description -->
+            <p
+                id="productDetailsDescription"
+                class="text-sm text-slate-500 leading-7 mt-3"
+            ></p>
+
+            <!-- Price -->
+            <div class="mt-5 flex items-end gap-3 flex-wrap">
+
+                <div class="flex items-baseline gap-1.5">
+                    <span
+                        id="productDetailsPrice"
+                        class="text-3xl font-black text-brand-600"
+                    >
+                        0
+                    </span>
+
+                    <span class="text-sm font-bold text-slate-400">
+                        ج.م
+                    </span>
+                </div>
+
+                <span
+                    id="productDetailsOldPrice"
+                    class="hidden text-sm text-slate-400 line-through"
+                ></span>
+
+                <span
+                    id="productDetailsUnit"
+                    class="text-xs font-bold text-slate-400"
+                >
+                    / قطعة
+                </span>
+
+            </div>
+
+            <!-- Divider -->
+            <div class="border-t border-slate-100 my-6"></div>
+
+            <!-- Quantity + Add -->
+            <div class="flex flex-col sm:flex-row gap-3">
+
+                <!-- Quantity -->
+                <div
+                    id="productDetailsQuantityBox"
+                    class="flex items-center justify-between bg-slate-100 border border-slate-200 rounded-2xl p-1.5 sm:w-40"
+                >
+                    <button
+                        type="button"
+                        onclick="changeProductDetailsQty(-1)"
+                        class="w-10 h-10 rounded-xl bg-white text-slate-700 hover:bg-brand-600 hover:text-white flex items-center justify-center shadow-sm transition-all"
+                    >
+                        <i class="fa-solid fa-minus"></i>
+                    </button>
+
+                    <span
+                        id="productDetailsQty"
+                        class="font-black text-lg text-slate-900"
+                    >
+                        1
+                    </span>
+
+                    <button
+                        type="button"
+                        onclick="changeProductDetailsQty(1)"
+                        class="w-10 h-10 rounded-xl bg-brand-600 text-white hover:bg-brand-700 flex items-center justify-center shadow-sm transition-all"
+                    >
+                        <i class="fa-solid fa-plus"></i>
+                    </button>
+                </div>
+
+                <!-- Add Button -->
+                <button
+                    id="productDetailsAddButton"
+                    type="button"
+                    onclick="addProductDetailsToCart()"
+                    class="flex-1 bg-brand-600 hover:bg-brand-700 text-white py-3.5 px-5 rounded-2xl font-black shadow-lg shadow-brand-600/25 transition-all flex items-center justify-center gap-3 active:scale-[0.98]"
+                >
+                    <i class="fa-solid fa-cart-plus text-lg"></i>
+                    <span>أضف للسلة</span>
+                </button>
+
+            </div>
+
+        </div>
+    </div>
+</div>
     <!-- CUSTOM NOTIFICATION MODAL -->
     <div id="alertModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm hidden">
         <div class="bg-white rounded-3xl shadow-2xl max-w-sm w-full p-6 text-center transform scale-95 transition-transform duration-300" id="alertModalBox">
@@ -943,7 +1111,10 @@ let currentSort = 'default';
                 const qty = cartItem ? cartItem.qty : 0;
 
                 return `
-                    <div class="product-card bg-white rounded-3xl border border-slate-200/80 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col overflow-hidden group relative">
+                   <div
+    class="product-card bg-white rounded-3xl border border-slate-200/80 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col overflow-hidden group relative cursor-pointer"
+    onclick="openProductDetails('${escapeHTML(product.id)}')"
+>
                         ${product.hasDiscount ? `
                             <span class="absolute top-3 right-3 z-10 bg-accent-500 text-white text-[10px] font-black px-2.5 py-1 rounded-full shadow-md uppercase tracking-wider">
                                 خصم
@@ -1025,37 +1196,39 @@ let currentSort = 'default';
                     <span class="text-xs font-black">منتهي</span>
                 </div>
             `
-            : qty === 0
-                ? `
-                    <button
-                        onclick="addToCart(${product.id})"
-                        class="w-10 h-10 rounded-2xl bg-brand-50 hover:bg-brand-600 text-brand-600 hover:text-white flex items-center justify-center transition-all shadow-sm group-hover:bg-brand-600 group-hover:text-white"
-                        title="أضف للسلة"
-                    >
-                        <i class="fa-solid fa-plus text-sm"></i>
-                    </button>
-                `
-                : `
-                    <div class="flex items-center gap-1.5 bg-brand-50 border border-brand-200 rounded-2xl p-1">
-                        <button
-                            onclick="updateQty(${product.id}, ${qty - 1})"
-                            class="w-7 h-7 rounded-xl bg-white text-brand-700 hover:bg-brand-600 hover:text-white flex items-center justify-center text-xs shadow-sm transition-all"
-                        >
-                            <i class="fa-solid fa-minus"></i>
-                        </button>
+            qty === 0
+    ? `
+        <button
+            onclick="event.stopPropagation(); addToCart('${escapeHTML(product.id)}')"
+            class="w-10 h-10 rounded-2xl bg-brand-50 hover:bg-brand-600 text-brand-600 hover:text-white flex items-center justify-center transition-all shadow-sm group-hover:bg-brand-600 group-hover:text-white"
+            title="أضف للسلة"
+        >
+            <i class="fa-solid fa-plus text-sm"></i>
+        </button>
+    `
+    : `
+        <div class="flex items-center gap-1.5 bg-brand-50 border border-brand-200 rounded-2xl p-1">
+            
+            <button
+                onclick="event.stopPropagation(); updateQty('${escapeHTML(product.id)}', ${qty - 1})"
+                class="w-7 h-7 rounded-xl bg-white text-brand-700 hover:bg-brand-600 hover:text-white flex items-center justify-center text-xs shadow-sm transition-all"
+            >
+                <i class="fa-solid fa-minus"></i>
+            </button>
 
-                        <span class="text-xs font-black text-slate-800 px-1.5">
-                            ${qty}
-                        </span>
+            <span class="text-xs font-black text-slate-800 px-1.5">
+                ${qty}
+            </span>
 
-                        <button
-                            onclick="updateQty(${product.id}, ${qty + 1})"
-                            class="w-7 h-7 rounded-xl bg-brand-600 text-white hover:bg-brand-700 flex items-center justify-center text-xs shadow-sm transition-all"
-                        >
-                            <i class="fa-solid fa-plus"></i>
-                        </button>
-                    </div>
-                `
+            <button
+                onclick="event.stopPropagation(); updateQty('${escapeHTML(product.id)}', ${qty + 1})"
+                class="w-7 h-7 rounded-xl bg-brand-600 text-white hover:bg-brand-700 flex items-center justify-center text-xs shadow-sm transition-all"
+            >
+                <i class="fa-solid fa-plus"></i>
+            </button>
+
+        </div>
+    `
     }
 </div>
                             </div>
@@ -1064,6 +1237,459 @@ let currentSort = 'default';
                 `;
             }).join('');
         }
+        /* ==========================================
+   PRODUCT DETAILS
+========================================== */
+
+let currentProductDetailsId = null;
+let productDetailsQty = 1;
+
+function openProductDetails(productId) {
+
+    const product = products.find(
+        p => String(p.id) === String(productId)
+    );
+
+    if (!product) {
+        console.warn('Product not found:', productId);
+        return;
+    }
+
+    currentProductDetailsId = String(product.id);
+
+    /*
+        الكمية الحالية من السلة
+    */
+    const existingCartItem = cart.find(
+        item => String(item.id) === String(product.id)
+    );
+
+    productDetailsQty = existingCartItem
+        ? Math.max(1, Number(existingCartItem.qty || 1))
+        : 1;
+
+    /*
+        IMAGE
+    */
+    const image = document.getElementById('productDetailsImage');
+
+    if (image) {
+        image.src =
+            product.image ||
+            'https://placehold.co/600x600/e2e8f0/64748b?text=سوبر+ماركت';
+
+        image.alt = product.name || 'منتج';
+
+        image.onerror = function () {
+            this.onerror = null;
+            this.src =
+                'https://placehold.co/600x600/e2e8f0/64748b?text=سوبر+ماركت';
+        };
+    }
+
+    /*
+        NAME
+    */
+    const nameElement =
+        document.getElementById('productDetailsName');
+
+    if (nameElement) {
+        nameElement.textContent =
+            product.name || 'منتج';
+    }
+
+    /*
+        DESCRIPTION
+    */
+    const descriptionElement =
+        document.getElementById('productDetailsDescription');
+
+    if (descriptionElement) {
+
+        descriptionElement.textContent =
+            product.description ||
+            'منتج من منتجات سوبر ماركت حماصه.';
+
+    }
+
+    /*
+        CATEGORY
+    */
+    const categoryElement =
+        document.getElementById('productDetailsCategory');
+
+    if (categoryElement) {
+        categoryElement.textContent =
+            getCategoryName(product.category);
+    }
+
+    /*
+        PRICE
+    */
+    const priceElement =
+        document.getElementById('productDetailsPrice');
+
+    if (priceElement) {
+        priceElement.textContent =
+            formatPrice(product.price);
+    }
+
+    /*
+        UNIT
+    */
+    const unitElement =
+        document.getElementById('productDetailsUnit');
+
+    if (unitElement) {
+        unitElement.textContent =
+            `/ ${product.unit || 'قطعة'}`;
+    }
+
+    /*
+        OLD PRICE
+    */
+    const oldPriceElement =
+        document.getElementById('productDetailsOldPrice');
+
+    if (
+        oldPriceElement &&
+        Number(product.oldPrice) > Number(product.price)
+    ) {
+
+        oldPriceElement.textContent =
+            `${formatPrice(product.oldPrice)} ج.م`;
+
+        oldPriceElement.classList.remove('hidden');
+
+    } else if (oldPriceElement) {
+
+        oldPriceElement.textContent = '';
+        oldPriceElement.classList.add('hidden');
+    }
+
+    /*
+        DISCOUNT
+    */
+    const discountElement =
+        document.getElementById('productDetailsDiscount');
+
+    if (
+        discountElement &&
+        Number(product.oldPrice) > Number(product.price)
+    ) {
+
+        const discountPercent = Math.round(
+            (
+                (Number(product.oldPrice) - Number(product.price)) /
+                Number(product.oldPrice)
+            ) * 100
+        );
+
+        discountElement.textContent =
+            `خصم ${discountPercent}%`;
+
+        discountElement.classList.remove('hidden');
+
+    } else if (discountElement) {
+
+        discountElement.classList.add('hidden');
+    }
+
+    /*
+        AVAILABILITY
+    */
+    const availabilityElement =
+        document.getElementById('productDetailsAvailability');
+
+    const unavailableElement =
+        document.getElementById('productDetailsUnavailable');
+
+    const quantityBox =
+        document.getElementById('productDetailsQuantityBox');
+
+    const addButton =
+        document.getElementById('productDetailsAddButton');
+
+    if (product.available === false) {
+
+        if (availabilityElement) {
+
+            availabilityElement.innerHTML = `
+                <i class="fa-solid fa-circle-xmark"></i>
+                غير متوفر
+            `;
+
+            availabilityElement.className =
+                'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-black bg-red-50 text-red-600 border border-red-100';
+        }
+
+        if (unavailableElement) {
+            unavailableElement.classList.remove('hidden');
+            unavailableElement.classList.add('flex');
+        }
+
+        if (quantityBox) {
+            quantityBox.classList.add(
+                'opacity-50',
+                'pointer-events-none'
+            );
+        }
+
+        if (addButton) {
+
+            addButton.disabled = true;
+
+            addButton.className =
+                'flex-1 bg-slate-300 text-slate-500 py-3.5 px-5 rounded-2xl font-black cursor-not-allowed flex items-center justify-center gap-3';
+
+            addButton.innerHTML = `
+                <i class="fa-solid fa-ban text-lg"></i>
+                <span>المنتج غير متوفر</span>
+            `;
+        }
+
+    } else {
+
+        if (availabilityElement) {
+
+            availabilityElement.innerHTML = `
+                <i class="fa-solid fa-circle-check"></i>
+                متوفر
+            `;
+
+            availabilityElement.className =
+                'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-black bg-green-50 text-green-600 border border-green-100';
+        }
+
+        if (unavailableElement) {
+            unavailableElement.classList.add('hidden');
+            unavailableElement.classList.remove('flex');
+        }
+
+        if (quantityBox) {
+            quantityBox.classList.remove(
+                'opacity-50',
+                'pointer-events-none'
+            );
+        }
+
+        if (addButton) {
+
+            addButton.disabled = false;
+
+            addButton.className =
+                'flex-1 bg-brand-600 hover:bg-brand-700 text-white py-3.5 px-5 rounded-2xl font-black shadow-lg shadow-brand-600/25 transition-all flex items-center justify-center gap-3 active:scale-[0.98]';
+
+            addButton.innerHTML = `
+                <i class="fa-solid fa-cart-plus text-lg"></i>
+                <span>أضف للسلة</span>
+            `;
+        }
+    }
+
+    updateProductDetailsQty();
+
+    /*
+        OPEN MODAL
+    */
+    const modal =
+        document.getElementById('productDetailsModal');
+
+    const content =
+        document.getElementById('productDetailsContent');
+
+    if (!modal || !content) return;
+
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+
+    document.body.style.overflow = 'hidden';
+
+    requestAnimationFrame(() => {
+
+        content.classList.remove(
+            'scale-95',
+            'opacity-0'
+        );
+
+        content.classList.add(
+            'scale-100',
+            'opacity-100'
+        );
+
+    });
+}
+
+
+function closeProductDetails() {
+
+    const modal =
+        document.getElementById('productDetailsModal');
+
+    const content =
+        document.getElementById('productDetailsContent');
+
+    if (!modal || !content) return;
+
+    content.classList.remove(
+        'scale-100',
+        'opacity-100'
+    );
+
+    content.classList.add(
+        'scale-95',
+        'opacity-0'
+    );
+
+    setTimeout(() => {
+
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+
+        document.body.style.overflow = '';
+
+        currentProductDetailsId = null;
+
+        productDetailsQty = 1;
+
+    }, 200);
+}
+
+
+function closeProductDetailsOnOverlay(event) {
+
+    if (
+        event.target &&
+        event.target.id === 'productDetailsModal'
+    ) {
+        closeProductDetails();
+    }
+}
+
+
+function changeProductDetailsQty(change) {
+
+    if (!currentProductDetailsId) return;
+
+    const product = products.find(
+        p => String(p.id) === String(currentProductDetailsId)
+    );
+
+    if (!product) return;
+
+    if (product.available === false) {
+        return;
+    }
+
+    productDetailsQty =
+        Number(productDetailsQty || 1) +
+        Number(change || 0);
+
+    if (productDetailsQty < 1) {
+        productDetailsQty = 1;
+    }
+
+    updateProductDetailsQty();
+}
+
+
+function updateProductDetailsQty() {
+
+    const qtyElement =
+        document.getElementById('productDetailsQty');
+
+    if (!qtyElement) return;
+
+    qtyElement.textContent =
+        productDetailsQty;
+}
+
+
+function addProductDetailsToCart() {
+
+    if (!currentProductDetailsId) return;
+
+    const product = products.find(
+        p => String(p.id) === String(currentProductDetailsId)
+    );
+
+    if (!product) return;
+
+    /*
+        Check availability
+    */
+    if (product.available === false) {
+
+        showAlert(
+            'المنتج غير متوفر',
+            'المنتج ده غير متوفر حاليًا.',
+            'fa-ban',
+            'bg-red-100 text-red-600'
+        );
+
+        return;
+    }
+
+    /*
+        Check store status
+    */
+    if (!isStoreOpen()) {
+
+        closeProductDetails();
+
+        showAlert(
+            'المتجر مغلق',
+            STORE_HOURS.closed_message ||
+            'المتجر مغلق حاليًا.',
+            'fa-clock',
+            'bg-red-100 text-red-600'
+        );
+
+        return;
+    }
+
+    const quantity =
+        Math.max(
+            1,
+            Number(productDetailsQty || 1)
+        );
+
+    const existing =
+        cart.find(
+            item =>
+                String(item.id) === String(product.id)
+        );
+
+    if (existing) {
+
+        existing.qty =
+            Number(existing.qty || 0) +
+            quantity;
+
+    } else {
+
+        cart.push({
+            ...product,
+            qty: quantity
+        });
+    }
+
+    cart = normalizeCart(cart);
+
+    saveCart();
+
+    renderProducts();
+
+    updateCartUI();
+
+    showAddToCartNotification(
+        quantity > 1
+            ? `${product.name} × ${quantity}`
+            : product.name
+    );
+
+    closeProductDetails();
+}
 
         function getCategoryName(catId) {
             const cat = categories.find(c => c.id === catId);
@@ -1253,6 +1879,20 @@ function getOrderTime() {
        
 function submitOrder(e) {
     e.preventDefault();
+    if (!isStoreOpen()) {
+
+    showAlert(
+        'المتجر مغلق',
+        STORE_HOURS.closed_message ||
+        'المتجر مغلق حاليًا ولا يمكن استقبال الطلبات.',
+        'fa-clock',
+        'bg-red-100 text-red-600'
+    );
+
+    closeCheckoutModal();
+
+    return;
+}
 
     const name = document.getElementById('custName').value.trim();
     const phone = document.getElementById('custPhone').value.trim();
