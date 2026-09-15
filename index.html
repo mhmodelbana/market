@@ -401,58 +401,254 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="./supabase.js"></script>
     <script>
+
         /* ==========================================
    STORE OPENING HOURS
-   الموقع يعمل من 7:00 صباحًا حتى 2:00 صباحًا
+   التحكم من Supabase + لوحة الإدارة
 ========================================== */
 
-function checkStoreOpeningHours() {
+let STORE_HOURS = {
+    id: 1,
+    mode: 'auto',
+    schedule_enabled: true,
+    opening_time: '07:00:00',
+    closing_time: '02:00:00',
+    work_days: [0, 1, 2, 3, 4, 5, 6],
+    closed_message: 'المتجر مغلق حاليًا. نرجو زيارتنا خلال مواعيد العمل.'
+};
+
+
+// تحميل إعدادات مواعيد العمل من Supabase
+async function loadStoreHours() {
+
+    try {
+
+        const { data, error } = await supabase
+            .from('store_hours')
+            .select('*')
+            .eq('id', 1)
+            .maybeSingle();
+
+        if (error) {
+            console.error('Store hours load error:', error);
+            return;
+        }
+
+        if (data) {
+
+            STORE_HOURS = {
+                id: data.id,
+
+                mode: data.mode || 'auto',
+
+                schedule_enabled:
+                    data.schedule_enabled !== false,
+
+                opening_time:
+                    data.opening_time || '07:00:00',
+
+                closing_time:
+                    data.closing_time || '02:00:00',
+
+                work_days:
+                    Array.isArray(data.work_days)
+                        ? data.work_days.map(Number)
+                        : [0, 1, 2, 3, 4, 5, 6],
+
+                closed_message:
+                    data.closed_message ||
+                    'المتجر مغلق حاليًا. نرجو زيارتنا خلال مواعيد العمل.'
+            };
+
+        }
+
+        checkStoreOpeningHours();
+
+    } catch (error) {
+
+        console.error('Store hours error:', error);
+
+    }
+
+}
+
+
+// تحويل HH:MM إلى دقائق
+function parseTimeToMinutes(timeString) {
+
+    if (!timeString) {
+        return 0;
+    }
+
+    const parts = String(timeString).split(':');
+
+    const hours = Number(parts[0] || 0);
+    const minutes = Number(parts[1] || 0);
+
+    return (hours * 60) + minutes;
+
+}
+
+
+// حساب حالة المتجر
+function calculateStoreOpenState() {
+
+    // فتح يدوي
+    if (STORE_HOURS.mode === 'open') {
+        return true;
+    }
+
+
+    // غلق يدوي
+    if (STORE_HOURS.mode === 'closed') {
+        return false;
+    }
+
+
+    // لو المواعيد متعطلة = مفتوح
+    if (STORE_HOURS.schedule_enabled === false) {
+        return true;
+    }
+
+
     const now = new Date();
 
-    const currentHour = now.getHours();
-    const currentMinute = now.getMinutes();
+    const currentDay = now.getDay();
 
-    // الوقت الحالي بالدقائق
-    const currentTime = (currentHour * 60) + currentMinute;
+    const currentMinutes =
+        (now.getHours() * 60) + now.getMinutes();
 
-    // 7:00 صباحًا
-    const openingTime = 7 * 60;
 
-    // 2:00 صباحًا
-    const closingTime = 2 * 60;
+    const openingMinutes =
+        parseTimeToMinutes(STORE_HOURS.opening_time);
 
-    /*
-        المتجر مفتوح:
-        من 07:00 صباحًا
-        حتى 01:59 صباحًا
+    const closingMinutes =
+        parseTimeToMinutes(STORE_HOURS.closing_time);
 
-        المتجر مغلق:
-        من 02:00 صباحًا
-        حتى 06:59 صباحًا
-    */
 
-    const isClosed =
-        currentTime >= closingTime &&
-        currentTime < openingTime;
+    const workDays =
+        Array.isArray(STORE_HOURS.work_days)
+            ? STORE_HOURS.work_days
+            : [0, 1, 2, 3, 4, 5, 6];
 
-    const closedScreen = document.getElementById('closedScreen');
 
-if (!closedScreen) return;
+    // نفس وقت الفتح والغلق = مفتوح طوال اليوم
+    if (openingMinutes === closingMinutes) {
 
-if (isClosed) {
+        return workDays.includes(currentDay);
+
+    }
+
+
+    // مواعيد داخل نفس اليوم
+    // مثال 08:00 → 23:00
+    if (openingMinutes < closingMinutes) {
+
+        if (!workDays.includes(currentDay)) {
+            return false;
+        }
+
+        return (
+            currentMinutes >= openingMinutes &&
+            currentMinutes < closingMinutes
+        );
+
+    }
+
+
+    // مواعيد تتعدى منتصف الليل
+    // مثال 07:00 → 02:00
+
+    if (currentMinutes >= openingMinutes) {
+
+        return workDays.includes(currentDay);
+
+    }
+
+
+    if (currentMinutes < closingMinutes) {
+
+        const previousDay =
+            (currentDay + 6) % 7;
+
+        return workDays.includes(previousDay);
+
+    }
+
+
+    return false;
+
+}
+
+
+// تحديث حالة المتجر في الواجهة
+function updateStoreStatusUI(isOpen) {
+
+    const statusElements =
+        document.querySelectorAll('.store-open-status');
+
+
+    statusElements.forEach(element => {
+
+        element.textContent =
+            isOpen
+                ? 'مفتوح الآن 🟢'
+                : 'مغلق الآن 🔴';
+
+    });
+
+}
+
+
+// فحص حالة المتجر
+function checkStoreOpeningHours() {
+
+    const closedScreen =
+        document.getElementById('closedScreen');
+
+
+    if (!closedScreen) {
+        return;
+    }
+
+
+    const isOpen =
+        calculateStoreOpenState();
+
+
+    updateStoreStatusUI(isOpen);
+
+
+    if (isOpen) {
+
+        closedScreen.classList.add('hidden');
+
+        document.body.style.overflow = '';
+
+        return;
+
+    }
+
+
+    // المتجر مغلق
     closedScreen.classList.remove('hidden');
+
     document.body.style.overflow = 'hidden';
-} else {
-    closedScreen.classList.add('hidden');
-    document.body.style.overflow = '';
-}
-}
 
-// فحص الوقت فور فتح الموقع
-checkStoreOpeningHours();
 
-// إعادة الفحص كل دقيقة
-setInterval(checkStoreOpeningHours, 60 * 1000);
+    const closedMessage =
+        document.getElementById('closedStoreMessage');
+
+
+    if (closedMessage) {
+
+        closedMessage.textContent =
+            STORE_HOURS.closed_message ||
+            'المتجر مغلق حاليًا. نرجو زيارتنا خلال مواعيد العمل.';
+
+    }
+
+}
         const DEFAULT_STORE_CONFIG = {
             name: "سوبر ماركت حماصه",
             whatsapp: "201144191571",
