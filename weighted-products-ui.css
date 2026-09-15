@@ -1,0 +1,135 @@
+/* HAMASA - Weighted product form premium UI */
+#newProdSellingMethod {
+  font-weight: 800;
+}
+
+#newProdSellingMethod,
+#newProdBaseUnit,
+#newProdWeightStep,
+#newProdMinWeight,
+#newProdMaxWeight,
+#newProdAllowCustomWeight {
+  transition: border-color .18s ease, box-shadow .18s ease, background-color .18s ease;
+}
+
+#newProdSellingMethod:focus,
+#newProdBaseUnit:focus,
+#newProdWeightStep:focus,
+#newProdMinWeight:focus,
+#newProdMaxWeight:focus {
+  border-color: #f59e0b !important;
+  box-shadow: 0 0 0 3px rgba(245,158,11,.12);
+  outline: none;
+}
+
+/* The injected weighted panel */
+#newProdSellingMethod:has(option[value="weight"]:checked) {
+  background: #fffbeb;
+}
+
+#newProdSellingMethod,
+#newProdBaseUnit {
+  min-height: 42px;
+}
+
+#newProdWeightStep,
+#newProdMinWeight,
+#newProdMaxWeight {
+  min-height: 42px;
+}
+
+#newProdWeightPreview {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(135deg,#fffdf5 0%,#ffffff 65%);
+  border-color: #fde68a !important;
+  box-shadow: 0 8px 25px rgba(120,80,0,.05);
+}
+
+#newProdWeightPreview::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 4px;
+  background: #f59e0b;
+}
+
+#newProdWeightPreviewText > div {
+  padding: 9px 11px;
+  border: 1px solid #f1f5f9;
+  border-radius: 11px;
+  background: rgba(255,255,255,.9);
+}
+
+#newProdWeightPreviewText strong {
+  color: #ea580c;
+}
+
+#newProdCustomWeightWrap {
+  min-height: 42px;
+  padding: 10px 13px;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  background: #fff;
+  cursor: pointer;
+  transition: .18s ease;
+}
+
+#newProdCustomWeightWrap:hover {
+  border-color: #fbbf24;
+  background: #fffbeb;
+}
+
+#newProdAllowCustomWeight {
+  accent-color: #f59e0b;
+}
+
+/* Keep the weighted settings visually grouped */
+#newProdSellingMethod:has(option[value="weight"]:checked) {
+  border-color: #fbbf24 !important;
+}
+
+/* Customer weight selector */
+#productDetailsWeightBox {
+  background: linear-gradient(135deg,#fffdf5 0%,#f8fafc 100%);
+  border-color: #fde68a !important;
+  box-shadow: 0 8px 24px rgba(15,23,42,.05);
+}
+
+#productDetailsWeightOptions {
+  grid-template-columns: repeat(2,minmax(0,1fr));
+}
+
+@media (min-width:640px) {
+  #productDetailsWeightOptions {
+    grid-template-columns: repeat(4,minmax(0,1fr));
+  }
+}
+
+.hw-weight-option {
+  min-height: 62px;
+  border: 1px solid #e5e7eb !important;
+  background: #fff !important;
+  transition: transform .16s ease, border-color .16s ease, box-shadow .16s ease, background .16s ease;
+}
+
+.hw-weight-option:hover {
+  transform: translateY(-1px);
+  border-color: #fbbf24 !important;
+  box-shadow: 0 5px 14px rgba(15,23,42,.07);
+}
+
+.hw-weight-option.active {
+  border-color: #f59e0b !important;
+  background: #fffbeb !important;
+  box-shadow: 0 5px 15px rgba(245,158,11,.12);
+}
+
+#productDetailsCustomWeightInput {
+  min-height: 42px;
+}
+
+#productDetailsCustomWeightApply {
+  min-height: 42px;
+  white-space: nowrap;
+}
