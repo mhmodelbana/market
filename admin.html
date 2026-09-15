@@ -1747,55 +1747,6 @@
             formatDate(latest);
     }
 
-    // =========================================================
-    // PRODUCTS LIST
-    // =========================================================
-async function toggleProductVisibility(id) {
-    const product = products.find(p => String(p.id) === String(id));
-
-    if (!product) {
-        return;
-    }
-
-    const nextState = product.is_active === false;
-
-    try {
-        const { error } = await marketSupabase
-            .from('products')
-            .update({
-                is_active: nextState
-            })
-            .eq('id', id);
-
-        if (error) {
-            throw error;
-        }
-
-        await refreshAdminData();
-
-        showAlert(
-            nextState ? 'تم الإظهار' : 'تم الإخفاء',
-            nextState
-                ? 'المنتج أصبح ظاهرًا للعملاء'
-                : 'المنتج أصبح مخفيًا من الموقع',
-            nextState ? 'fa-eye' : 'fa-eye-slash',
-            nextState
-                ? 'bg-green-100 text-green-600'
-                : 'bg-slate-100 text-slate-600'
-        );
-
-    } catch (error) {
-        console.error('toggleProductVisibility error:', error);
-
-        showAlert(
-            'خطأ',
-            error.message || 'حدث خطأ أثناء تغيير حالة المنتج',
-            'fa-xmark',
-            'bg-red-100 text-red-600'
-        );
-    }
-}
-
    // =========================================================
 // PRODUCTS LIST
 // =========================================================
@@ -2117,189 +2068,356 @@ function filterAdminProducts() {
     // =========================================================
     // ADD / EDIT PRODUCT
     // =========================================================
+async function handleAddNewProduct(e) {
 
-    async function handleAddNewProduct(e) {
+    e.preventDefault();
 
-        e.preventDefault();
+    const submitButton =
+        document.getElementById('productSubmitBtn');
 
-        const name =
-            document.getElementById('newProdName')
-                .value.trim();
+    const name =
+        document.getElementById('newProdName')
+            .value.trim();
 
-        const price =
-            Number(
-                document.getElementById('newProdPrice').value
-            );
+    const price =
+        Number(
+            document.getElementById('newProdPrice').value
+        );
 
-        const unit =
-            document.getElementById('newProdUnit')
-                .value.trim();
+    const unit =
+        document.getElementById('newProdUnit')
+            .value.trim();
 
-        const category =
-            document.getElementById('newProdCategory')
-                .value;
+    const category =
+        document.getElementById('newProdCategory')
+            .value;
 
-        const image =
-            document.getElementById('newProdImage')
-                .value.trim();
+    const image =
+        document.getElementById('newProdImage')
+            .value.trim();
 
-        const hasDiscount =
-            document.getElementById('newProdHasDiscount')
-                .checked;
+    const hasDiscount =
+        document.getElementById('newProdHasDiscount')
+            .checked;
 
-        const oldPriceValue =
-            document.getElementById('newProdOldPrice')
-                .value;
+    const oldPriceValue =
+        document.getElementById('newProdOldPrice')
+            .value;
 
-        const oldPrice =
-            Number(oldPriceValue);
+    const oldPrice =
+        Number(oldPriceValue);
 
-        if (!name) {
 
-            showAlert(
-                'خطأ',
-                'اكتب اسم المنتج',
-                'fa-xmark',
-                'bg-red-100 text-red-600'
-            );
+    /* =========================
+       VALIDATION
+    ========================= */
 
-            return;
-        }
+    if (!name) {
 
-        if (!Number.isFinite(price) || price < 0) {
+        showAlert(
+            'بيانات ناقصة',
+            'اكتب اسم المنتج',
+            'fa-circle-exclamation',
+            'bg-yellow-100 text-yellow-600'
+        );
 
-            showAlert(
-                'خطأ',
-                'السعر غير صحيح',
-                'fa-xmark',
-                'bg-red-100 text-red-600'
-            );
+        return;
+    }
 
-            return;
-        }
+    if (!Number.isFinite(price) || price < 0) {
 
-        if (!unit) {
+        showAlert(
+            'خطأ',
+            'السعر غير صحيح',
+            'fa-circle-exclamation',
+            'bg-red-100 text-red-600'
+        );
 
-            showAlert(
-                'خطأ',
-                'اكتب الوحدة',
-                'fa-xmark',
-                'bg-red-100 text-red-600'
-            );
+        return;
+    }
 
-            return;
-        }
+    if (!unit) {
 
-        if (!category) {
+        showAlert(
+            'بيانات ناقصة',
+            'اكتب الوحدة',
+            'fa-circle-exclamation',
+            'bg-yellow-100 text-yellow-600'
+        );
 
-            showAlert(
-                'خطأ',
-                'لازم تختار قسم للمنتج',
-                'fa-xmark',
-                'bg-red-100 text-red-600'
-            );
+        return;
+    }
 
-            return;
-        }
+    if (!category) {
 
-        if (!image) {
+        showAlert(
+            'بيانات ناقصة',
+            'لازم تختار قسم للمنتج',
+            'fa-circle-exclamation',
+            'bg-yellow-100 text-yellow-600'
+        );
 
-            showAlert(
-                'خطأ',
-                'اكتب رابط صورة المنتج',
-                'fa-xmark',
-                'bg-red-100 text-red-600'
-            );
+        return;
+    }
 
-            return;
-        }
+    if (!image) {
 
-        if (
-            hasDiscount &&
-            (!Number.isFinite(oldPrice) || oldPrice <= price)
-        ) {
+        showAlert(
+            'بيانات ناقصة',
+            'اكتب رابط صورة المنتج',
+            'fa-circle-exclamation',
+            'bg-yellow-100 text-yellow-600'
+        );
 
-            showAlert(
-                'خطأ',
-                'السعر القديم لازم يكون أكبر من السعر الحالي',
-                'fa-xmark',
-                'bg-red-100 text-red-600'
-            );
+        return;
+    }
 
-            return;
-        }
+    if (
+        hasDiscount &&
+        (!Number.isFinite(oldPrice) || oldPrice <= price)
+    ) {
 
-        try {
+        showAlert(
+            'خطأ في الخصم',
+            'السعر القديم لازم يكون أكبر من السعر الحالي',
+            'fa-circle-exclamation',
+            'bg-red-100 text-red-600'
+        );
 
-            const payload = buildProductPayload({
-                name,
-                price,
-                category,
-                unit,
-                image,
-                description: document.getElementById('newProdDescription')?.value?.trim() || '',
-                stock: Number(document.getElementById('newProdStock')?.value || 0),
-                available: document.getElementById('newProdAvailable') ? document.getElementById('newProdAvailable').checked : true,
-                hasDiscount,
-                oldPrice
+        return;
+    }
+
+
+    /* =========================
+       NORMALIZE PRODUCT NAME
+    ========================= */
+
+    const normalizedName =
+        name
+            .trim()
+            .replace(/\s+/g, ' ')
+            .toLowerCase();
+
+
+    /* =========================
+       CHECK DUPLICATE PRODUCT
+    ========================= */
+
+    const duplicateProduct =
+        products.find(product => {
+
+            const existingName =
+                String(product.name || '')
+                    .trim()
+                    .replace(/\s+/g, ' ')
+                    .toLowerCase();
+
+            // أثناء التعديل: اسم المنتج الحالي مسموح يفضل زي ما هو
+            if (
+                editingProductId &&
+                String(product.id) === String(editingProductId)
+            ) {
+                return false;
+            }
+
+            return existingName === normalizedName;
+        });
+
+
+    if (duplicateProduct) {
+
+        showAlert(
+            'المنتج موجود بالفعل',
+            `المنتج "${duplicateProduct.name}" مضاف بالفعل ولا يمكن إضافته مرة أخرى`,
+            'fa-circle-exclamation',
+            'bg-red-100 text-red-600'
+        );
+
+        return;
+    }
+
+
+    /* =========================
+       BUILD PAYLOAD
+    ========================= */
+
+    const payload =
+        buildProductPayload({
+
+            name,
+            price,
+            category,
+            unit,
+            image,
+
+            description:
+                document
+                    .getElementById('newProdDescription')
+                    ?.value
+                    ?.trim() || '',
+
+            stock:
+                Number(
+                    document
+                        .getElementById('newProdStock')
+                        ?.value || 0
+                ),
+
+            available:
+                document.getElementById('newProdAvailable')
+                    ? document
+                        .getElementById('newProdAvailable')
+                        .checked
+                    : true,
+
+            hasDiscount,
+            oldPrice
+        });
+
+
+    /* =========================
+       PREVENT DOUBLE CLICK
+    ========================= */
+
+    if (submitButton) {
+
+        submitButton.disabled = true;
+
+        submitButton.classList.add(
+            'opacity-50',
+            'cursor-not-allowed'
+        );
+    }
+
+
+    try {
+
+
+        /* =========================
+           EDIT PRODUCT
+        ========================= */
+
+        if (editingProductId) {
+
+            await saveProductRecord({
+
+                mode: 'update',
+
+                id: editingProductId,
+
+                payload
             });
 
-            // =================================================
-            // EDIT
-            // =================================================
-
-            if (editingProductId) {
-
-                await saveProductRecord({
-                    mode: 'update',
-                    id: editingProductId,
-                    payload
-                });
-
-                showAlert(
-                    'تم التعديل',
-                    'تم تعديل المنتج وحفظ التغييرات بنجاح',
-                    'fa-pen-to-square',
-                    'bg-blue-100 text-blue-600'
-                );
-
-            }
-
-            // =================================================
-            // ADD
-            // =================================================
-
-            else {
-
-                await saveProductRecord({
-                    mode: 'insert',
-                    payload
-                });
-
-                showAlert(
-                    'تمت الإضافة',
-                    'تمت إضافة المنتج الجديد بنجاح',
-                    'fa-circle-check',
-                    'bg-brand-100 text-brand-600'
-                );
-            }
-
-            cancelProductEdit();
-
-            await refreshAdminData();
-
-        } catch (error) {
-
-            console.error(error);
 
             showAlert(
-                'خطأ',
-                error.message,
-                'fa-xmark',
-                'bg-red-100 text-red-600'
+                'تم التعديل',
+                'تم تعديل المنتج وحفظ التغييرات بنجاح',
+                'fa-pen-to-square',
+                'bg-blue-100 text-blue-600'
+            );
+
+        }
+
+
+        /* =========================
+           ADD NEW PRODUCT
+        ========================= */
+
+        else {
+
+            try {
+
+                await saveProductRecord({
+
+                    mode: 'insert',
+
+                    payload
+                });
+
+            } catch (error) {
+
+                const errorCode =
+                    String(error?.code || '');
+
+                const errorMessage =
+                    String(error?.message || '');
+
+
+                /*
+                 * PostgreSQL duplicate key
+                 * 23505 = unique_violation
+                 */
+
+                if (
+                    errorCode === '23505' ||
+                    errorMessage.includes(
+                        'products_name_unique_idx'
+                    )
+                ) {
+
+                    showAlert(
+                        'المنتج موجود بالفعل',
+                        `المنتج "${name}" مضاف بالفعل ولا يمكن إضافته مرة أخرى`,
+                        'fa-circle-exclamation',
+                        'bg-red-100 text-red-600'
+                    );
+
+                    return;
+                }
+
+
+                throw error;
+            }
+
+
+            showAlert(
+                'تمت الإضافة',
+                `تمت إضافة المنتج "${name}" بنجاح`,
+                'fa-circle-check',
+                'bg-green-100 text-green-600'
+            );
+        }
+
+
+        /* =========================
+           RESET FORM + REFRESH
+        ========================= */
+
+        cancelProductEdit();
+
+        await refreshAdminData();
+
+
+    } catch (error) {
+
+        console.error(
+            'handleAddNewProduct error:',
+            error
+        );
+
+
+        showAlert(
+            'حدث خطأ',
+            error?.message ||
+            'حدث خطأ أثناء حفظ المنتج',
+            'fa-xmark',
+            'bg-red-100 text-red-600'
+        );
+
+
+    } finally {
+
+        if (submitButton) {
+
+            submitButton.disabled = false;
+
+            submitButton.classList.remove(
+                'opacity-50',
+                'cursor-not-allowed'
             );
         }
     }
+}
 
     function editProduct(id) {
 
