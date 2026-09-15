@@ -121,6 +121,51 @@
 </head>
 <body class="bg-slate-50 min-h-screen flex flex-col selection:bg-brand-500 selection:text-white">
 
+    <!-- شاشة إغلاق المتجر -->
+<div id="closedScreen" class="fixed inset-0 z-[99999] hidden bg-white flex items-center justify-center px-6">
+    <div class="text-center w-full max-w-md">
+
+        <!-- اللوجو -->
+        <img
+            src="Gemini_Generated_Image_hmarnphmarnphmar.png"
+            alt="سوبر ماركت حماصه"
+            class="w-48 sm:w-56 mx-auto mb-8 object-contain"
+        >
+
+        <!-- الحالة -->
+        <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-red-50 text-red-600 font-bold text-sm mb-4">
+            <span class="w-2.5 h-2.5 rounded-full bg-red-500"></span>
+            مغلق الآن
+        </div>
+
+        <h2 class="text-2xl sm:text-3xl font-black text-gray-800 mb-3">
+            المحل مغلق حاليًا
+        </h2>
+
+        <p class="text-gray-500 text-sm sm:text-base leading-7">
+            نعتذر عن استقبال الطلبات في الوقت الحالي
+        </p>
+
+        <div class="mt-6 bg-gray-50 rounded-2xl p-5 border border-gray-100">
+            <div class="flex items-center justify-center gap-2 text-gray-700 font-bold mb-2">
+                <i class="fa-regular fa-clock text-brand-600"></i>
+                مواعيد العمل
+            </div>
+
+            <div class="text-lg font-black text-gray-800">
+                يوميًا من 7:00 صباحًا
+                <br>
+                حتى 2:00 صباحًا
+            </div>
+        </div>
+
+        <p class="mt-5 text-xs text-gray-400">
+            الموقع هيفتح تلقائيًا مع بداية مواعيد العمل
+        </p>
+
+    </div>
+</div>
+
     <!-- HEADER / NAVIGATION -->
     <header class="glass-header sticky top-0 z-40 border-b border-slate-200/80 transition-all duration-300 shadow-sm">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
@@ -356,6 +401,74 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="./supabase.js"></script>
     <script>
+        /* ==========================================
+   STORE OPENING HOURS
+   الموقع يعمل من 7:00 صباحًا حتى 2:00 صباحًا
+========================================== */
+
+function checkStoreOpeningHours() {
+    const now = new Date();
+
+    const currentHour = now.getHours();
+    const currentMinute = now.getMinutes();
+
+    // الوقت الحالي بالدقائق
+    const currentTime = (currentHour * 60) + currentMinute;
+
+    // 7:00 صباحًا
+    const openingTime = 7 * 60;
+
+    // 2:00 صباحًا
+    const closingTime = 2 * 60;
+
+    /*
+        المتجر مفتوح:
+        من 07:00 صباحًا
+        حتى 01:59 صباحًا
+
+        المتجر مغلق:
+        من 02:00 صباحًا
+        حتى 06:59 صباحًا
+    */
+
+    const isClosed =
+        currentTime >= closingTime &&
+        currentTime < openingTime;
+
+    const closedScreen = document.getElementById('closedScreen');
+    const siteContent = document.getElementById('siteContent');
+
+    if (!closedScreen || !siteContent) return;
+
+    if (isClosed) {
+
+        // إظهار شاشة الإغلاق
+        closedScreen.classList.remove('hidden');
+
+        // إخفاء الموقع بالكامل
+        siteContent.classList.add('hidden');
+
+        // منع الـ Scroll
+        document.body.style.overflow = 'hidden';
+
+    } else {
+
+        // إخفاء شاشة الإغلاق
+        closedScreen.classList.add('hidden');
+
+        // إظهار الموقع
+        siteContent.classList.remove('hidden');
+
+        // السماح بالـ Scroll
+        document.body.style.overflow = '';
+    }
+}
+
+// فحص الوقت فور فتح الموقع
+checkStoreOpeningHours();
+
+// إعادة الفحص كل دقيقة
+setInterval(checkStoreOpeningHours, 60 * 1000);
         const DEFAULT_STORE_CONFIG = {
             name: "سوبر ماركت حماصه",
             whatsapp: "201144191571",
@@ -1199,5 +1312,6 @@ function submitOrder(e) {
             </div>
         </div>
     </footer>
+     </div>
 </body>
 </html>
