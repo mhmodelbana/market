@@ -540,6 +540,7 @@
     renderProducts();
 }
         function renderSearchSuggestions(query) {
+            
     const suggestionsBox = document.getElementById('desktopSearchSuggestions');
 
     if (!suggestionsBox) return;
@@ -601,6 +602,35 @@
     `).join('');
 
     suggestionsBox.classList.remove('hidden');
+}
+        function selectSearchSuggestion(productId) {
+    const product = products.find(
+        p => String(p.id) === String(productId)
+    );
+
+    if (!product) return;
+
+    const searchInput = document.getElementById('desktopSearchInput');
+    const suggestionsBox = document.getElementById('desktopSearchSuggestions');
+
+    if (searchInput) {
+        searchInput.value = product.name;
+    }
+
+    // دعم البحث من الموبايل لو المستخدم اختار اقتراح لاحقًا
+    const mobileInput = document.getElementById('mobileSearchInput');
+    if (mobileInput) {
+        mobileInput.value = product.name;
+    }
+
+    searchQuery = String(product.name || '').trim().toLowerCase();
+
+    if (suggestionsBox) {
+        suggestionsBox.classList.add('hidden');
+        suggestionsBox.innerHTML = '';
+    }
+
+    renderProducts();
 }
         
         function changeSorting(val) {
