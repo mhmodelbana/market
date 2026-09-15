@@ -989,48 +989,122 @@ document.getElementById('cartDeliveryFee').innerText = `${formatPrice(STORE_CONF
             setTimeout(() => modal.classList.add('hidden'), 200);
         }
 
-        function submitOrder(e) {
-            e.preventDefault();
-            const name = document.getElementById('custName').value.trim();
-            const phone = document.getElementById('custPhone').value.trim();
-            const address = document.getElementById('custAddress').value.trim();
-            const notes = document.getElementById('custNotes').value.trim();
+function generateOrderNumber() {
+    const timestamp = Date.now().toString().slice(-6);
+    const random = Math.floor(100 + Math.random() * 900);
+    return `HM-${timestamp}${random}`;
+}
 
-            const subtotal = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
-            const delivery = STORE_CONFIG.deliveryFee;
-            const total = subtotal + delivery;
+function getOrderTime() {
+    return new Date().toLocaleString('ar-EG', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: true
+    });
+}
+        
+       ```javascript
+function submitOrder(e) {
+    e.preventDefault();
 
-            let orderText = `🛒 *طلب جديد من ${STORE_CONFIG.name}*\n\n`;
-            orderText += `👤 *الاسم:* ${name}\n`;
-            orderText += `📞 *الهاتف:* ${phone}\n`;
-            orderText += `📍 *العنوان:* ${address}\n`;
-            if (notes) orderText += `📝 *ملاحظات:* ${notes}\n`;
-            orderText += `\n--------------------------\n`;
-            orderText += `🛍️ *المنتجات المطلوبة:*\n`;
+    const name = document.getElementById('custName').value.trim();
+    const phone = document.getElementById('custPhone').value.trim();
+    const address = document.getElementById('custAddress').value.trim();
+    const notes = document.getElementById('custNotes').value.trim();
 
-            cart.forEach((item, index) => {
-                orderText += `${index + 1}. ${item.name} (${item.qty} ${item.unit}) - ${formatPrice(item.price * item.qty)} ج.م\n`;
-            });
+    if (!cart.length) {
+        showAlert(
+            'السلة فارغة',
+            'برجاء إضافة منتجات أولاً قبل إتمام الطلب.',
+            'fa-cart-shopping',
+            'bg-accent-100 text-accent-600'
+        );
+        return;
+    }
 
-            orderText += `--------------------------\n`;
-            orderText += `💰 *قيمة المنتجات:* ${formatPrice(subtotal)} ج.م\n`;
-orderText += `🚴 *التوصيل:* ${formatPrice(delivery)} ج.م\n`;
-orderText += `🌟 *المجموع الكلي:* ${formatPrice(total)} ج.م\n`;
-            orderText += `\n✨ تم إرسال الطلب عبر موقع السوبر ماركت الإلكتروني.`;
+    const subtotal = cart.reduce(
+        (sum, item) => sum + (Number(item.price) * Number(item.qty)),
+        0
+    );
 
-            const encodedURL = `https://wa.me/${STORE_CONFIG.whatsapp}?text=${encodeURIComponent(orderText)}`;
-            
-            // Clear cart & close modal
-            cart = [];
-            saveCart();
-            updateCartUI();
-            renderProducts();
-            closeCheckoutModal();
+    const delivery = Number(STORE_CONFIG.deliveryFee || 0);
+    const total = subtotal + delivery;
 
-            // Open WhatsApp
-            window.open(encodedURL, '_blank');
-            showAlert('تم إرسال الطلب بنجاح!', 'جاري تحويلك إلى تطبيق واتساب لإرسال الطلب للمتجر. شكراً لتسوقك معنا!', 'fa-brands fa-whatsapp', 'bg-emerald-100 text-emerald-600');
-        }
+    const orderNumber = generateOrderNumber();
+    const orderTime = getOrderTime();
+
+    let orderText = `🛒 *طلب جديد | ${STORE_CONFIG.name}*\n\n`;
+
+    orderText += `🔢 *رقم الطلب:* #${orderNumber}\n`;
+    orderText += `🕐 *الوقت:* ${orderTime}\n\n`;
+
+    orderText += `👤 *${name}*\n`;
+    orderText += `📞 ${phone}\n`;
+    orderText += `📍 ${address}\n`;
+
+    if (notes) {
+        orderText += `📝 ${notes}\n`;
+    }
+
+    orderText += `\n🛍️ *الطلب:*\n`;
+
+    cart.forEach((item, index) => {
+        const itemTotal = Number(item.price) * Number(item.qty);
+
+        orderText += `${index + 1}. ${item.name} × ${item.qty} = *${formatPrice(itemTotal)} ج.م*\n`;
+    });
+
+    orderText += `\n━━━━━━━━━━━━━━\n`;
+    orderText += `💰 المنتجات: ${formatPrice(subtotal)} ج.م\n`;
+    orderText += `🚴 التوصيل: ${formatPrice(delivery)} ج.م\n`;
+    orderText += `💵 *الإجمالي: ${formatPrice(total)} ج.م*\n`;
+    orderText += `💳 الدفع: *عند الاستلام*\n`;
+    orderText += `━━━━━━━━━━━━━━\n\n`;
+    orderText += `✨ *شكرًا لطلبك من ${STORE_CONFIG.name}*`;
+
+    const encodedURL =
+        `https://wa.me/${STORE_CONFIG.whatsapp}?text=${encodeURIComponent(orderText)}`;
+
+    cart = [];
+    saveCart();
+    updateCartUI();
+    renderProducts();
+    closeCheckoutModal();
+
+    window.open(encodedURL, '_blank');
+
+    showAlert(
+        'تم تجهيز الطلب بنجاح!',
+        `رقم طلبك #${orderNumber} — جاري فتح واتساب لإرسال الطلب للمتجر.`,
+        'fa-brands fa-whatsapp',
+        'bg-emerald-100 text-emerald-600'
+    );
+}
+```
+```javascript
+function generateOrderNumber() {
+    const timestamp = Date.now().toString().slice(-6);
+    const random = Math.floor(100 + Math.random() * 900);
+    return `HM-${timestamp}${random}`;
+}
+
+function getOrderTime() {
+    return new Date().toLocaleString('ar-EG', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: true
+    });
+}
+
+```
+
+
 
         function showAlert(title, message, iconClass = 'fa-check', iconBg = 'bg-brand-100 text-brand-600') {
             const modal = document.getElementById('alertModal');
@@ -1039,7 +1113,7 @@ orderText += `🌟 *المجموع الكلي:* ${formatPrice(total)} ج.م\n`;
             
             const iconContainer = document.getElementById('alertIcon');
             iconContainer.className = `w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl ${iconBg}`;
-            iconContainer.innerHTML = `<i class="fa-solid ${iconClass}"></i>`;
+            iconContainer.innerHTML = `<i class="${iconClass}"></i>`;
 
             modal.classList.remove('hidden');
             setTimeout(() => {
