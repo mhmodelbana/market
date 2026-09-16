@@ -130,10 +130,25 @@
             </div>
         </header>
 
+        <!-- Admin Section Navigation -->
+        <nav class="bg-white border-b border-slate-200 shadow-sm sticky top-0 z-30">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex flex-wrap gap-2" role="navigation" aria-label="أقسام لوحة الإدارة">
+                <button type="button" onclick="showAdminSection('dashboard', this)" class="admin-nav-btn bg-brand-600 text-white px-4 py-2 rounded-xl text-xs font-bold" aria-current="page"><i class="fa-solid fa-chart-pie ml-1"></i> الرئيسية</button>
+                <button type="button" onclick="showAdminSection('products', this)" class="admin-nav-btn bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2 rounded-xl text-xs font-bold"><i class="fa-solid fa-box ml-1"></i> المنتجات</button>
+                <button type="button" onclick="showAdminSection('add-product', this)" class="admin-nav-btn bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2 rounded-xl text-xs font-bold"><i class="fa-solid fa-circle-plus ml-1"></i> إضافة منتج</button>
+                <button type="button" onclick="showAdminSection('categories', this)" class="admin-nav-btn bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2 rounded-xl text-xs font-bold"><i class="fa-solid fa-layer-group ml-1"></i> الأقسام</button>
+                <button type="button" onclick="showAdminSection('suggestions', this)" class="admin-nav-btn bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2 rounded-xl text-xs font-bold"><i class="fa-solid fa-lightbulb ml-1"></i> الاقتراحات</button>
+                <button type="button" onclick="showAdminSection('settings', this)" class="admin-nav-btn bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2 rounded-xl text-xs font-bold"><i class="fa-solid fa-store ml-1"></i> إعدادات المتجر</button>
+                <button type="button" onclick="showAdminSection('hours', this)" class="admin-nav-btn bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2 rounded-xl text-xs font-bold"><i class="fa-solid fa-clock ml-1"></i> مواعيد العمل</button>
+                <button type="button" onclick="showAdminSection('tools', this)" class="admin-nav-btn bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2 rounded-xl text-xs font-bold"><i class="fa-solid fa-database ml-1"></i> أدوات البيانات</button>
+            </div>
+        </nav>
+
         <!-- Main Content -->
         <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             <!-- Stats Cards -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+            <section id="admin-section-dashboard" class="admin-section ">
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
                 <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
                     <div class="flex items-center justify-between">
                         <div>
@@ -179,9 +194,11 @@
                     </div>
                 </div>
             </div>
+</section>
 
             <!-- Store Settings -->
-            <div class="bg-white rounded-3xl shadow-sm border border-slate-200 p-6 mb-8">
+            <section id="admin-section-settings" class="admin-section hidden">
+<div class="bg-white rounded-3xl shadow-sm border border-slate-200 p-6 mb-8">
                 <h3 class="text-lg font-black text-slate-900 mb-6 flex items-center gap-2">
                     <i class="fa-solid fa-store text-brand-600"></i>
                     إعدادات المتجر
@@ -217,7 +234,9 @@
                     </div>
                 </form>
             </div>
+</section>
 <!-- Store Hours Management -->
+<section id="admin-section-hours" class="admin-section hidden">
 <div class="bg-white rounded-3xl shadow-sm border border-slate-200 p-6 mb-8">
     <div class="flex items-start justify-between gap-4 mb-6">
         <div>
@@ -525,7 +544,9 @@
 
     </form>
 </div>
+</section>
             <!-- Product Suggestions Management -->
+<section id="admin-section-suggestions" class="admin-section hidden">
 <div class="bg-white rounded-3xl shadow-sm border border-slate-200 p-6 mb-8">
 
     <!-- Header -->
@@ -614,8 +635,10 @@
     </div>
 
 </div>
+</section>
             <!-- Categories Management -->
-            <div class="bg-white rounded-3xl shadow-sm border border-slate-200 p-6 mb-8">
+            <section id="admin-section-categories" class="admin-section hidden">
+<div class="bg-white rounded-3xl shadow-sm border border-slate-200 p-6 mb-8">
                 <h3 class="text-lg font-black text-slate-900 mb-6 flex items-center gap-2">
                     <i class="fa-solid fa-layer-group text-brand-600"></i>
                     إدارة الأقسام
@@ -680,9 +703,11 @@
                     <!-- Injected via JS -->
                 </div>
             </div>
+</section>
 
             <!-- Add Product Form -->
-            <div class="bg-white rounded-3xl shadow-sm border border-slate-200 p-6 mb-8">
+            <section id="admin-section-add-product" class="admin-section hidden">
+<div class="bg-white rounded-3xl shadow-sm border border-slate-200 p-6 mb-8">
                 <h3 class="text-lg font-black text-slate-900 mb-6 flex items-center gap-2">
                     <i class="fa-solid fa-plus-circle text-brand-600"></i>
                     إضافة منتج جديد
@@ -745,9 +770,11 @@
                     </div>
                 </form>
             </div>
+</section>
 
             <!-- Products Management -->
-            <div class="bg-white rounded-3xl shadow-sm border border-slate-200 p-6">
+            <section id="admin-section-products" class="admin-section hidden">
+<div class="bg-white rounded-3xl shadow-sm border border-slate-200 p-6">
                 <div class="flex items-center justify-between mb-6">
                     <h3 class="text-lg font-black text-slate-900 flex items-center gap-2">
                         <i class="fa-solid fa-list text-brand-600"></i>
@@ -768,9 +795,11 @@
                     <!-- Injected via JS -->
                 </div>
             </div>
+</section>
 
             <!-- Actions -->
-            <div class="mt-8 flex flex-wrap gap-4">
+            <section id="admin-section-tools" class="admin-section hidden">
+<div class="mt-8 flex flex-wrap gap-4">
                 <button onclick="resetDefaultData()" class="bg-red-100 hover:bg-red-200 text-red-700 px-6 py-3 rounded-xl text-xs font-bold transition-all">
                     <i class="fa-solid fa-rotate-left ml-1"></i>
                     استرجاع المنتجات الافتراضية
@@ -785,6 +814,7 @@
                 </button>
                 <input type="file" id="importFile" accept=".json" onchange="importData(event)" class="hidden">
             </div>
+</section>
         </main>
     </div>
 
@@ -1319,6 +1349,23 @@ renderAdminUI();
         document
             .getElementById('adminDashboard')
             .classList.add('hidden');
+    }
+
+    function showAdminSection(section, button) {
+        document.querySelectorAll('.admin-section').forEach(el => el.classList.add('hidden'));
+        const target = document.getElementById('admin-section-' + section);
+        if (target) target.classList.remove('hidden');
+        document.querySelectorAll('.admin-nav-btn').forEach(btn => {
+            btn.classList.remove('bg-brand-600', 'text-white');
+            btn.classList.add('bg-slate-100', 'text-slate-700');
+            btn.removeAttribute('aria-current');
+        });
+        if (button) {
+            button.classList.remove('bg-slate-100', 'text-slate-700');
+            button.classList.add('bg-brand-600', 'text-white');
+            button.setAttribute('aria-current', 'page');
+        }
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
     function showDashboard() {
