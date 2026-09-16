@@ -3410,16 +3410,31 @@ function renderAdminProductsList() {
 
 function filterAdminProducts() {
 
+    const searchInput =
+        document.getElementById('searchProducts');
+
+    const categoryInput =
+        document.getElementById('filterCategory');
+
+    const list =
+        document.getElementById('adminProductsList');
+
+
+    // لو عناصر الفلترة مش موجودة
+    // نعتبر القيم الافتراضية
     const searchTerm =
         (
-            document.getElementById('searchProducts').value ||
+            searchInput?.value ||
             ''
         )
             .trim()
             .toLowerCase();
 
+
     const categoryFilter =
-        document.getElementById('filterCategory').value;
+        categoryInput?.value ||
+        'all';
+
 
     const filtered =
         products.filter(p => {
@@ -3429,18 +3444,31 @@ function filterAdminProducts() {
                     .toLowerCase()
                     .includes(searchTerm);
 
+
             const matchesCategory =
                 categoryFilter === 'all' ||
                 p.category === categoryFilter;
+
 
             return (
                 matchesSearch &&
                 matchesCategory
             );
+
         });
 
-    const list =
-        document.getElementById('adminProductsList');
+
+    // لو قائمة المنتجات نفسها مش موجودة
+    if (!list) {
+
+        console.warn(
+            'adminProductsList element not found'
+        );
+
+        return;
+
+    }
+
 
     if (!filtered.length) {
 
@@ -3448,7 +3476,9 @@ function filterAdminProducts() {
             <div class="text-center py-8">
 
                 <div class="w-16 h-16 bg-slate-100 text-slate-400 rounded-full flex items-center justify-center mx-auto mb-3 text-2xl">
+
                     <i class="fa-solid fa-box-open"></i>
+
                 </div>
 
                 <p class="text-sm text-slate-500">
@@ -3461,11 +3491,13 @@ function filterAdminProducts() {
         return;
     }
 
+
     list.innerHTML =
         filtered.map(p => {
 
             const safeId =
                 encodeActionId(p.id);
+
 
             return `
                 <div class="flex items-center justify-between p-4 bg-slate-50 border border-slate-200 rounded-xl hover:bg-slate-100 transition-all">
@@ -3540,6 +3572,7 @@ function filterAdminProducts() {
 
                     </div>
 
+
                     <div class="flex items-center gap-2 shrink-0">
 
                         <button
@@ -3558,6 +3591,7 @@ function filterAdminProducts() {
                             }"></i>
                         </button>
 
+
                         <button
                             onclick="toggleProductAvailability(decodeURIComponent('${safeId}'))"
                             class="${p.available === false
@@ -3574,6 +3608,7 @@ function filterAdminProducts() {
                             }"></i>
                         </button>
 
+
                         <button
                             onclick="editProduct(decodeURIComponent('${safeId}'))"
                             class="text-blue-600 hover:text-blue-700 p-2 text-sm"
@@ -3581,6 +3616,7 @@ function filterAdminProducts() {
                         >
                             <i class="fa-solid fa-pen-to-square"></i>
                         </button>
+
 
                         <button
                             onclick="deleteProduct(decodeURIComponent('${safeId}'))"
@@ -3597,7 +3633,6 @@ function filterAdminProducts() {
 
         }).join('');
 }
-
     function getCategoryName(catId) {
 
         const category =
