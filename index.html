@@ -1078,7 +1078,7 @@ let currentSort = 'default';
                         <i class="fa-solid fa-box-open"></i>
                     </div>
                     <h4 class="text-lg font-bold text-slate-800">لا توجد منتجات متاحة حالياً</h4>
-                    <p class="text-sm text-slate-500 mt-1">سيظهر catálogo المتجر هنا عندما يتم إضافة المنتجات من لوحة التحكم.</p>
+                    <p class="text-sm text-slate-500 mt-1">سيظهر كتالوج المتجر هنا عندما يتم إضافة المنتجات من لوحة التحكم.</p>
                 `;
                 return;
             }
@@ -1099,10 +1099,55 @@ let currentSort = 'default';
             }
 
             if (filtered.length === 0) {
-                grid.innerHTML = '';
-                emptyState.classList.remove('hidden');
-                return;
-            }
+    grid.innerHTML = '';
+    emptyState.classList.remove('hidden');
+
+    if (searchQuery.trim()) {
+        emptyState.innerHTML = `
+            <div class="w-20 h-20 bg-amber-50 text-amber-500 rounded-full flex items-center justify-center mx-auto mb-4 text-3xl">
+                <i class="fa-solid fa-magnifying-glass"></i>
+            </div>
+
+            <h4 class="text-lg font-bold text-slate-800">
+                مش لاقي المنتج؟
+            </h4>
+
+            <p class="text-sm text-slate-500 mt-2 leading-7">
+                مفيش نتائج للبحث عن
+                <strong class="text-slate-800">
+                    "${escapeHTML(searchQuery.trim())}"
+                </strong>
+                <br>
+                ممكن تقترحه علينا وإدارة سوبر ماركت حماصه هتراجعه ❤️
+            </p>
+
+            <button
+                type="button"
+                onclick="openSuggestionFromSearch()"
+                class="mt-5 inline-flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white font-bold px-6 py-3 rounded-2xl shadow-md hover:shadow-lg transition-all"
+            >
+                <i class="fa-solid fa-lightbulb"></i>
+                اقترح علينا المنتج
+            </button>
+        `;
+    } else {
+        emptyState.innerHTML = `
+            <div class="w-20 h-20 bg-slate-100 text-slate-400 rounded-full flex items-center justify-center mx-auto mb-4 text-3xl">
+                <i class="fa-solid fa-box-open"></i>
+            </div>
+
+            <h4 class="text-lg font-bold text-slate-800">
+                لا توجد منتجات متاحة حالياً
+            </h4>
+
+            <p class="text-sm text-slate-500 mt-1">
+                سيظهر كتالوج المتجر هنا عندما يتم إضافة المنتجات من لوحة التحكم.
+            </p>
+        `;
+    }
+
+    return;
+}
 
             emptyState.classList.add('hidden');
 
@@ -2152,6 +2197,41 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
 });
+
+        function openSuggestionFromSearch() {
+    const productName = searchQuery.trim();
+
+    const suggestionForm =
+        document.getElementById('productSuggestionForm');
+
+    const suggestionProductName =
+        document.getElementById('suggestionProductName');
+
+    if (!suggestionForm || !suggestionProductName) {
+        showAlert(
+            'حصل خطأ',
+            'مش قادرين نفتح نموذج الاقتراح دلوقتي. حاول تاني.',
+            'fa-circle-exclamation',
+            'bg-red-100 text-red-600'
+        );
+        return;
+    }
+
+    // كتابة اسم المنتج اللي العميل بحث عنه تلقائياً
+    suggestionProductName.value = productName;
+
+    // النزول لفورم الاقتراح
+    suggestionForm.scrollIntoView({
+        behavior: 'smooth',
+        block: 'center'
+    });
+
+    // تحديد خانة اسم المنتج
+    setTimeout(() => {
+        suggestionProductName.focus();
+        suggestionProductName.select();
+    }, 600);
+}
     </script>
 
     <!-- Back to Top Button -->
