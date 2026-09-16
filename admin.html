@@ -4883,6 +4883,7 @@ function removeProductVariantRow(rowId) {
 
 
 function getProductVariantsFromForm() {
+
     const rows = document.querySelectorAll(
         '#productVariantsRows > div'
     );
@@ -4891,70 +4892,113 @@ function getProductVariantsFromForm() {
 
     rows.forEach((row, index) => {
 
-        const labelInput = row.querySelector('[data-variant-label]');
-        const priceInput = row.querySelector('[data-variant-price]');
-        const oldPriceInput = row.querySelector('[data-variant-old-price]');
+        const labelInput =
+            row.querySelector('[data-variant-label]');
 
-        const label = labelInput?.value.trim() || '';
-        const price = Number(priceInput?.value || 0);
+        const priceInput =
+            row.querySelector('[data-variant-price]');
 
-        const oldPriceValue = oldPriceInput?.value.trim() || '';
+        const oldPriceInput =
+            row.querySelector('[data-variant-old-price]');
+
+
+        const label =
+            labelInput?.value.trim() || '';
+
+        const price =
+            Number(
+                priceInput?.value || 0
+            );
+
+
+        const oldPriceValue =
+            oldPriceInput?.value.trim() || '';
 
         const oldPrice =
             oldPriceValue === ''
                 ? null
                 : Number(oldPriceValue);
 
-        // تجاهل الصف الفاضي بالكامل
+
+        // الصف فاضي بالكامل
         if (!label && !price) {
             return;
         }
 
+
+        // الوزن مطلوب
         if (!label) {
-            throw new Error(`من فضلك اكتب اسم الوزن في الصف رقم ${index + 1}`);
+
+            throw new Error(
+                `من فضلك اكتب اسم الوزن في الصف رقم ${index + 1}`
+            );
+
         }
 
+
+        // سعر الوزن مطلوب
         if (
-    !hasVariants &&
-    (!Number.isFinite(price) || price < 0)
-) {
-    showAlert(
-        'السعر غير صحيح',
-        'من فضلك أدخل سعر المنتج',
-        'fa-circle-exclamation',
-        'bg-yellow-100 text-yellow-600'
-    );
-    return;
-}
-            throw new Error(`من فضلك اكتب سعر صحيح للوزن ${label}`);
+            !Number.isFinite(price) ||
+            price <= 0
+        ) {
+
+            throw new Error(
+                `من فضلك اكتب سعر صحيح للوزن ${label}`
+            );
+
         }
+
+
+        // السعر القديم اختياري
+        // لكن لو موجود لازم يكون أكبر من السعر الحالي
+        if (
+            oldPrice !== null &&
+            (
+                !Number.isFinite(oldPrice) ||
+                oldPrice <= price
+            )
+        ) {
+
+            throw new Error(
+                `السعر القديم للوزن ${label} يجب أن يكون أكبر من السعر الحالي`
+            );
+
+        }
+
 
         variants.push({
-            label,
-            price,
+
+            label: label,
+
+            price: price,
+
             old_price:
-                oldPrice !== null &&
-                Number.isFinite(oldPrice) &&
-                oldPrice > 0
+                oldPrice !== null
                     ? oldPrice
                     : null,
+
             is_active: true,
+
             display_order: index
+
         });
+
     });
+
 
     return variants;
 }
-
-
 function escapeHtmlAttribute(value) {
+
     return String(value ?? '')
         .replace(/&/g, '&amp;')
         .replace(/"/g, '&quot;')
         .replace(/'/g, '&#039;')
         .replace(/</g, '&lt;')
         .replace(/>/g, '&gt;');
+
 }
+
 </script>
 </body>
 </html>
