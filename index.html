@@ -1491,6 +1491,100 @@ function openProductDetails(productId) {
 
     updateProductDetailsQty();
 
+
+    // ==========================================
+// Product Suggestions
+// ==========================================
+
+const productSuggestionForm = document.getElementById('productSuggestionForm');
+
+if (productSuggestionForm) {
+    productSuggestionForm.addEventListener('submit', async function (e) {
+        e.preventDefault();
+
+        const submitButton = document.getElementById('productSuggestionSubmit');
+
+        const productName = document
+            .getElementById('suggestionProductName')
+            .value
+            .trim();
+
+        const customerName = document
+            .getElementById('suggestionCustomerName')
+            .value
+            .trim();
+
+        const customerPhone = document
+            .getElementById('suggestionCustomerPhone')
+            .value
+            .trim();
+
+        const notes = document
+            .getElementById('suggestionNotes')
+            .value
+            .trim();
+
+        if (!productName) {
+            showAlert(
+                'تنبيه',
+                'من فضلك اكتب اسم المنتج المقترح.',
+                'warning'
+            );
+            return;
+        }
+
+        try {
+            submitButton.disabled = true;
+
+            submitButton.innerHTML = `
+                <i class="fas fa-spinner fa-spin"></i>
+                جاري إرسال الاقتراح...
+            `;
+
+            const { error } = await marketSupabase
+                .from('product_suggestions')
+                .insert([{
+                    product_name: productName,
+                    customer_name: customerName || null,
+                    customer_phone: customerPhone || null,
+                    notes: notes || null,
+                    status: 'new'
+                }]);
+
+            if (error) {
+                console.error('Product suggestion error:', error);
+                throw error;
+            }
+
+            productSuggestionForm.reset();
+
+            showAlert(
+                'تم إرسال الاقتراح ❤️',
+                'شكراً ليك! اقتراحك وصل لإدارة سوبر ماركت حماصه وهنراجعه قريباً.',
+                'success'
+            );
+
+        } catch (error) {
+
+            console.error('Failed to submit product suggestion:', error);
+
+            showAlert(
+                'حصل خطأ',
+                'مش قادرين نسجل الاقتراح دلوقتي. حاول تاني بعد شوية.',
+                'error'
+            );
+
+        } finally {
+
+            submitButton.disabled = false;
+
+            submitButton.innerHTML = `
+                <i class="fas fa-paper-plane"></i>
+                إرسال الاقتراح
+            `;
+        }
+    });
+}
     /*
         OPEN MODAL
     */
