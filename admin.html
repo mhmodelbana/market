@@ -681,93 +681,226 @@
             </div>
 
             <!-- Add Product Form -->
-            <div class="bg-white rounded-3xl shadow-sm border border-slate-200 p-6 mb-8">
-                <h3 class="text-lg font-black text-slate-900 mb-6 flex items-center gap-2">
-                    <i class="fa-solid fa-plus-circle text-brand-600"></i>
-                    إضافة منتج جديد
-                </h3>
-                <form id="productForm" onsubmit="handleAddNewProduct(event)" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                    <div class="lg:col-span-1">
-                        <label class="block text-xs font-bold text-slate-700 mb-1">اسم المنتج *</label>
-                        <input type="text" id="newProdName" required 
-                            class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-brand-500"
-                            placeholder="مثال: جبنة رومي">
-                    </div>
+<div class="bg-white rounded-3xl shadow-sm border border-slate-200 p-6 mb-8">
+    <h3 class="text-lg font-black text-slate-900 mb-6 flex items-center gap-2">
+        <i class="fa-solid fa-plus-circle text-brand-600"></i>
+        إضافة منتج جديد
+    </h3>
+
+    <form id="productForm"
+        onsubmit="handleAddNewProduct(event)"
+        class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+
+        <!-- اسم المنتج -->
+        <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">
+                اسم المنتج *
+            </label>
+            <input
+                type="text"
+                id="newProdName"
+                required
+                class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-brand-500"
+                placeholder="مثال: مخلل ليمون"
+            >
+        </div>
+
+        <!-- الوحدة -->
+        <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">
+                الوحدة *
+            </label>
+            <input
+                type="text"
+                id="newProdUnit"
+                required
+                class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-brand-500"
+                placeholder="مثال: علبة / زجاجة / كيلو"
+            >
+        </div>
+
+        <!-- القسم -->
+        <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">
+                القسم *
+            </label>
+            <select
+                id="newProdCategory"
+                required
+                class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold focus:outline-none focus:ring-2 focus:ring-brand-500"
+            >
+                <!-- Populated dynamically -->
+            </select>
+        </div>
+
+        <!-- السعر الأساسي -->
+        <div id="basePriceField">
+            <label class="block text-xs font-bold text-slate-700 mb-1">
+                السعر بالجنيه *
+            </label>
+            <input
+                type="number"
+                id="newProdPrice"
+                min="0"
+                step="0.01"
+                required
+                class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-brand-500"
+                placeholder="مثال: 45"
+            >
+        </div>
+
+        <!-- الصورة -->
+        <div class="lg:col-span-2">
+            <label class="block text-xs font-bold text-slate-700 mb-1">
+                رابط الصورة (URL) *
+            </label>
+            <input
+                type="url"
+                id="newProdImage"
+                required
+                class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-brand-500"
+                placeholder="https://example.com/image.jpg"
+            >
+        </div>
+
+        <!-- خصم -->
+        <div class="flex items-center gap-2">
+            <input
+                type="checkbox"
+                id="newProdHasDiscount"
+                class="w-4 h-4 text-brand-600 rounded"
+            >
+            <label
+                for="newProdHasDiscount"
+                class="text-xs font-bold text-slate-700"
+            >
+                عليه خصم؟
+            </label>
+        </div>
+
+        <!-- السعر القديم -->
+        <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">
+                السعر القديم
+            </label>
+            <input
+                type="number"
+                id="newProdOldPrice"
+                min="0"
+                step="0.01"
+                class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-brand-500"
+                placeholder="السعر قبل الخصم"
+            >
+        </div>
+
+        <!-- ===================================== -->
+        <!-- الأوزان -->
+        <!-- ===================================== -->
+
+        <div class="lg:col-span-3">
+            <div class="border-t border-slate-100 pt-5 mt-2">
+
+                <!-- Header -->
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
+
                     <div>
-                        <label class="block text-xs font-bold text-slate-700 mb-1">السعر بالجنيه *</label>
-                        <input type="number" id="newProdPrice" required 
-                            class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-brand-500"
-                            placeholder="مثال: 45">
+                        <h4 class="text-sm font-black text-slate-900 flex items-center gap-2">
+                            <i class="fa-solid fa-weight-scale text-brand-600"></i>
+                            أوزان المنتج
+                        </h4>
+
+                        <p class="text-[11px] text-slate-400 mt-1">
+                            فعّلها لو المنتج له أكتر من وزن وسعر
+                        </p>
                     </div>
-                    <div>
-                        <label class="block text-xs font-bold text-slate-700 mb-1">الوحدة *</label>
-                        <input type="text" id="newProdUnit" required 
-                            class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-brand-500"
-                            placeholder="مثال: كيلو / علبة / زجاجة">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-slate-700 mb-1">القسم *</label>
-                        <select id="newProdCategory" required 
-                            class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold focus:outline-none focus:ring-2 focus:ring-brand-500">
-                            <!-- Populated dynamically -->
-                        </select>
-                    </div>
-                    <div class="lg:col-span-2">
-                        <label class="block text-xs font-bold text-slate-700 mb-1">رابط الصورة (URL) *</label>
-                        <input type="url" id="newProdImage" required 
-                            class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-brand-500"
-                            placeholder="https://example.com/image.jpg">
-                    </div>
-                    <div class="flex items-center gap-2">
-                        <input type="checkbox" id="newProdHasDiscount" class="w-4 h-4 text-brand-600 rounded">
-                        <label for="newProdHasDiscount" class="text-xs font-bold text-slate-700">عليه خصم؟</label>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-slate-700 mb-1">السعر القديم</label>
-                        <input type="number" id="newProdOldPrice" 
-                            class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-brand-500"
-                            placeholder="السعر قبل الخصم">
-                    </div>
-                    <div class="lg:col-span-1 pt-5 flex gap-2">
-                        <button type="submit" id="productSubmitBtn" class="flex-1 bg-brand-600 hover:bg-brand-700 text-white py-2.5 rounded-xl font-bold text-xs shadow-md transition-all">
-                            <i class="fa-solid fa-plus ml-1"></i>
-                            إضافة المنتج
-                        </button>
-                        <button
-                            type="button"
-                            id="productCancelBtn"
-                            onclick="cancelProductEdit()"
-                            class="hidden bg-slate-200 hover:bg-slate-300 text-slate-700 px-4 py-2.5 rounded-xl font-bold text-xs"
+
+                    <label class="inline-flex items-center gap-2 cursor-pointer">
+                        <input
+                            type="checkbox"
+                            id="newProdHasVariants"
+                            onchange="toggleProductVariantsForm()"
+                            class="w-4 h-4 text-brand-600 rounded"
                         >
-                            إلغاء
-                        </button>
-                    </div>
-                </form>
-            </div>
 
-            <!-- Products Management -->
-            <div class="bg-white rounded-3xl shadow-sm border border-slate-200 p-6">
-                <div class="flex items-center justify-between mb-6">
-                    <h3 class="text-lg font-black text-slate-900 flex items-center gap-2">
-                        <i class="fa-solid fa-list text-brand-600"></i>
-                        المنتجات الحالية (<span id="adminProdCount">0</span>)
-                    </h3>
-                    <div class="flex items-center gap-2">
-                        <input type="text" id="searchProducts" oninput="filterAdminProducts()" 
-                            class="px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-brand-500"
-                            placeholder="بحث في المنتجات...">
-                        <select id="filterCategory" onchange="filterAdminProducts()" 
-                            class="px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold focus:outline-none focus:ring-2 focus:ring-brand-500">
-                            <option value="all">جميع الأقسام</option>
-                        </select>
-                    </div>
+                        <span class="text-xs font-bold text-slate-700">
+                            المنتج له أوزان؟
+                        </span>
+                    </label>
+
                 </div>
-                
-                <div id="adminProductsList" class="space-y-2 max-h-96 overflow-y-auto">
-                    <!-- Injected via JS -->
+
+                <!-- Variants Container -->
+                <div
+                    id="productVariantsForm"
+                    class="hidden bg-slate-50 border border-slate-200 rounded-2xl p-4"
+                >
+
+                    <!-- Table Header -->
+                    <div class="hidden sm:grid grid-cols-12 gap-3 px-2 mb-2 text-[10px] font-black text-slate-500">
+                        <div class="col-span-4">
+                            الوزن
+                        </div>
+
+                        <div class="col-span-3">
+                            السعر
+                        </div>
+
+                        <div class="col-span-3">
+                            السعر القديم
+                        </div>
+
+                        <div class="col-span-2 text-center">
+                            حذف
+                        </div>
+                    </div>
+
+                    <!-- Rows -->
+                    <div
+                        id="productVariantsRows"
+                        class="space-y-2"
+                    >
+                        <!-- Variant rows injected here -->
+                    </div>
+
+                    <!-- Add Variant -->
+                    <button
+                        type="button"
+                        onclick="addProductVariantRow()"
+                        class="mt-4 inline-flex items-center gap-2 px-4 py-2.5 bg-white border border-brand-200 text-brand-600 hover:bg-brand-50 rounded-xl text-xs font-black transition"
+                    >
+                        <i class="fa-solid fa-plus"></i>
+                        إضافة وزن
+                    </button>
+
                 </div>
             </div>
+        </div>
 
+        <!-- Buttons -->
+        <div class="lg:col-span-3 pt-3 flex gap-2">
+
+            <button
+                type="submit"
+                id="productSubmitBtn"
+                class="flex-1 sm:flex-none sm:min-w-[180px] bg-brand-600 hover:bg-brand-700 text-white py-2.5 px-6 rounded-xl font-bold text-xs shadow-md transition-all"
+            >
+                <i class="fa-solid fa-plus ml-1"></i>
+                إضافة المنتج
+            </button>
+
+            <button
+                type="button"
+                id="productCancelBtn"
+                onclick="cancelProductEdit()"
+                class="hidden bg-slate-200 hover:bg-slate-300 text-slate-700 px-6 py-2.5 rounded-xl font-bold text-xs"
+            >
+                إلغاء
+            </button>
+
+        </div>
+
+    </form>
+</div>
             <!-- Actions -->
             <div class="mt-8 flex flex-wrap gap-4">
                 <button onclick="resetDefaultData()" class="bg-red-100 hover:bg-red-200 text-red-700 px-6 py-3 rounded-xl text-xs font-bold transition-all">
@@ -4381,7 +4514,227 @@ async function handleAddNewProduct(e) {
             .getElementById('alertModal')
             .classList.add('hidden');
     }
+/* ============================================
+   PRODUCT VARIANTS / WEIGHTS
+   ============================================ */
 
+let productVariantRowCounter = 0;
+
+function toggleProductVariantsForm() {
+    const checkbox = document.getElementById('newProdHasVariants');
+    const container = document.getElementById('productVariantsForm');
+    const basePriceField = document.getElementById('basePriceField');
+    const priceInput = document.getElementById('newProdPrice');
+    const rowsContainer = document.getElementById('productVariantsRows');
+
+    if (!checkbox || !container) return;
+
+    const enabled = checkbox.checked;
+
+    if (enabled) {
+        container.classList.remove('hidden');
+
+        // السعر الأساسي مش مطلوب لو فيه أوزان
+        if (basePriceField) {
+            basePriceField.classList.add('opacity-50');
+        }
+
+        if (priceInput) {
+            priceInput.required = false;
+            priceInput.disabled = true;
+        }
+
+        // إضافة أول صف تلقائيًا
+        if (rowsContainer && rowsContainer.children.length === 0) {
+            addProductVariantRow('250 جم', '', '');
+            addProductVariantRow('500 جم', '', '');
+            addProductVariantRow('750 جم', '', '');
+            addProductVariantRow('1 كجم', '', '');
+        }
+
+    } else {
+
+        container.classList.add('hidden');
+
+        if (basePriceField) {
+            basePriceField.classList.remove('opacity-50');
+        }
+
+        if (priceInput) {
+            priceInput.disabled = false;
+            priceInput.required = true;
+        }
+
+        if (rowsContainer) {
+            rowsContainer.innerHTML = '';
+        }
+    }
+}
+
+
+function addProductVariantRow(
+    label = '',
+    price = '',
+    oldPrice = ''
+) {
+    const container = document.getElementById('productVariantsRows');
+
+    if (!container) return;
+
+    productVariantRowCounter++;
+
+    const rowId = `productVariantRow_${productVariantRowCounter}`;
+
+    const row = document.createElement('div');
+
+    row.id = rowId;
+
+    row.className =
+        'grid grid-cols-1 sm:grid-cols-12 gap-2 sm:gap-3 bg-white border border-slate-200 rounded-xl p-3';
+
+    row.innerHTML = `
+        <!-- الوزن -->
+        <div class="sm:col-span-4">
+            <label class="sm:hidden block text-[10px] font-bold text-slate-500 mb-1">
+                الوزن
+            </label>
+
+            <input
+                type="text"
+                data-variant-label
+                value="${escapeHtmlAttribute(label)}"
+                class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs font-bold focus:outline-none focus:ring-2 focus:ring-brand-500"
+                placeholder="مثال: 250 جم"
+            >
+        </div>
+
+        <!-- السعر -->
+        <div class="sm:col-span-3">
+            <label class="sm:hidden block text-[10px] font-bold text-slate-500 mb-1">
+                السعر
+            </label>
+
+            <input
+                type="number"
+                data-variant-price
+                value="${escapeHtmlAttribute(price)}"
+                min="0"
+                step="0.01"
+                class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs font-bold focus:outline-none focus:ring-2 focus:ring-brand-500"
+                placeholder="السعر"
+            >
+        </div>
+
+        <!-- السعر القديم -->
+        <div class="sm:col-span-3">
+            <label class="sm:hidden block text-[10px] font-bold text-slate-500 mb-1">
+                السعر القديم
+            </label>
+
+            <input
+                type="number"
+                data-variant-old-price
+                value="${escapeHtmlAttribute(oldPrice)}"
+                min="0"
+                step="0.01"
+                class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-brand-500"
+                placeholder="اختياري"
+            >
+        </div>
+
+        <!-- حذف -->
+        <div class="sm:col-span-2 flex items-end sm:items-center justify-center">
+
+            <button
+                type="button"
+                onclick="removeProductVariantRow('${rowId}')"
+                class="w-full sm:w-10 h-9 flex items-center justify-center gap-2 bg-red-50 hover:bg-red-100 text-red-600 rounded-lg transition"
+                title="حذف الوزن"
+            >
+                <i class="fa-solid fa-trash"></i>
+                <span class="sm:hidden text-xs font-bold">
+                    حذف الوزن
+                </span>
+            </button>
+
+        </div>
+    `;
+
+    container.appendChild(row);
+}
+
+
+function removeProductVariantRow(rowId) {
+    const row = document.getElementById(rowId);
+
+    if (row) {
+        row.remove();
+    }
+}
+
+
+function getProductVariantsFromForm() {
+    const rows = document.querySelectorAll(
+        '#productVariantsRows > div'
+    );
+
+    const variants = [];
+
+    rows.forEach((row, index) => {
+
+        const labelInput = row.querySelector('[data-variant-label]');
+        const priceInput = row.querySelector('[data-variant-price]');
+        const oldPriceInput = row.querySelector('[data-variant-old-price]');
+
+        const label = labelInput?.value.trim() || '';
+        const price = Number(priceInput?.value || 0);
+
+        const oldPriceValue = oldPriceInput?.value.trim() || '';
+
+        const oldPrice =
+            oldPriceValue === ''
+                ? null
+                : Number(oldPriceValue);
+
+        // تجاهل الصف الفاضي بالكامل
+        if (!label && !price) {
+            return;
+        }
+
+        if (!label) {
+            throw new Error(`من فضلك اكتب اسم الوزن في الصف رقم ${index + 1}`);
+        }
+
+        if (!Number.isFinite(price) || price <= 0) {
+            throw new Error(`من فضلك اكتب سعر صحيح للوزن ${label}`);
+        }
+
+        variants.push({
+            label,
+            price,
+            old_price:
+                oldPrice !== null &&
+                Number.isFinite(oldPrice) &&
+                oldPrice > 0
+                    ? oldPrice
+                    : null,
+            is_active: true,
+            display_order: index
+        });
+    });
+
+    return variants;
+}
+
+
+function escapeHtmlAttribute(value) {
+    return String(value ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+}
 </script>
 </body>
 </html>
