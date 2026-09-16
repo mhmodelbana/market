@@ -3788,6 +3788,7 @@ function filterAdminProducts() {
     // =========================================================
     // ADD / EDIT PRODUCT
     // =========================================================
+```js
 async function handleAddNewProduct(e) {
 
     e.preventDefault();
@@ -3855,7 +3856,7 @@ async function handleAddNewProduct(e) {
 
     if (
         !hasVariants &&
-        (!Number.isFinite(price) || price < 0)
+        (!Number.isFinite(price) || price <= 0)
     ) {
 
         showAlert(
@@ -3924,251 +3925,6 @@ async function handleAddNewProduct(e) {
     }
 
 
-    
-
-
-    /* =========================
-       PREVENT DOUBLE CLICK
-    ========================= */
-
-    if (submitButton) {
-
-        submitButton.disabled = true;
-
-        submitButton.classList.add(
-            'opacity-50',
-            'cursor-not-allowed'
-        );
-    }
-
-
-    try {
-
-        ```js
-        /* =========================
-           EDIT PRODUCT
-        ========================= */
-
-        if (editingProductId) {
-
-            await saveProductRecord({
-                mode: 'update',
-                id: editingProductId,
-                payload
-            });
-
-            showAlert(
-                'تم التعديل',
-                'تم تعديل المنتج وحفظ التغييرات بنجاح',
-                'fa-pen-to-square',
-                'bg-blue-100 text-blue-600'
-            );
-
-        }
-
-
-        /* =========================
-           ADD NEW PRODUCT
-        ========================= */
-
-        else {
-
-            try {
-
-                const savedProduct =
-                    await saveProductRecord({
-                        mode: 'insert',
-                        payload
-                    });
-
-                const productId =
-                    savedProduct?.id ||
-                    savedProduct?.data?.id;
-
-                if (!productId) {
-
-                    throw new Error(
-                        'تم حفظ المنتج لكن لم يتم الحصول على رقم المنتج لحفظ الأوزان'
-                    );
-
-                }
-
-
-                /* =========================
-                   SAVE VARIANTS
-                ========================= */
-
-                if (
-                    hasVariants &&
-                    variants.length
-                ) {
-
-                    const variantsPayload =
-                        variants.map(variant => ({
-                            product_id: productId,
-                            label: variant.label,
-                            price: variant.price,
-                            old_price: variant.old_price,
-                            stock: 0,
-                            is_active: true,
-                            display_order:
-                                variant.display_order
-                        }));
-
-                    const {
-                        error: variantsError
-                    } = await marketSupabase
-                        .from('product_variants')
-                        .insert(
-                            variantsPayload
-                        );
-
-                    if (variantsError) {
-
-                        await marketSupabase
-                            .from('products')
-                            .delete()
-                            .eq(
-                                'id',
-                                productId
-                            );
-
-                        throw variantsError;
-                    }
-                }
-
-
-            } catch (error) {
-
-                const errorCode =
-                    String(
-                        error?.code || ''
-                    );
-
-                const errorMessage =
-                    String(
-                        error?.message || ''
-                    );
-
-
-                /*
-                 * PostgreSQL duplicate key
-                 * 23505 = unique_violation
-                 */
-
-                if (
-                    errorCode === '23505' ||
-                    errorMessage.includes(
-                        'products_name_unique_idx'
-                    )
-                ) {
-
-                    showAlert(
-                        'المنتج موجود بالفعل',
-                        `المنتج "${name}" مضاف بالفعل ولا يمكن إضافته مرة أخرى`,
-                        'fa-circle-exclamation',
-                        'bg-red-100 text-red-600'
-                    );
-
-                    return;
-                }
-
-
-                throw error;
-            }
-
-
-            showAlert(
-                'تمت الإضافة',
-                `تمت إضافة المنتج "${name}" بنجاح`,
-                'fa-circle-check',
-                'bg-green-100 text-green-600'
-            );
-        }
-
-
-
-                const errorCode =
-                    String(
-                        error?.code || ''
-                    );
-
-                const errorMessage =
-                    String(
-                        error?.message || ''
-                    );
-
-
-                if (
-                    errorCode === '23505' ||
-                    errorMessage.includes(
-                        'products_name_unique_idx'
-                    )
-                ) {
-
-                    showAlert(
-                        'المنتج موجود بالفعل',
-                        `المنتج "${name}" مضاف بالفعل ولا يمكن إضافته مرة أخرى`,
-                        'fa-circle-exclamation',
-                        'bg-red-100 text-red-600'
-                    );
-
-                    return;
-                }
-
-
-                throw error;
-            }
-
-
-            showAlert(
-                'تمت الإضافة',
-                `تمت إضافة المنتج "${name}" بنجاح`,
-                'fa-circle-check',
-                'bg-green-100 text-green-600'
-            );
-
-        }
-
-
-        /* =========================
-           RESET + REFRESH
-        ========================= */
-
-        cancelProductEdit();
-
-        await refreshAdminData();
-
-    } catch (error) {
-
-        console.error(
-            'handleAddNewProduct error:',
-            error
-        );
-
-
-        showAlert(
-            'حدث خطأ',
-            error?.message ||
-                'حدث خطأ أثناء حفظ المنتج',
-            'fa-xmark',
-            'bg-red-100 text-red-600'
-        );
-
-    } finally {
-
-        if (submitButton) {
-
-            submitButton.disabled = false;
-
-            submitButton.classList.remove(
-                'opacity-50',
-                'cursor-not-allowed'
-            );
-        }
-    }
-}
-
     /* =========================
        NORMALIZE PRODUCT NAME
     ========================= */
@@ -4179,27 +3935,33 @@ async function handleAddNewProduct(e) {
             .replace(/\s+/g, ' ')
             .toLowerCase();
 
+
     /* =========================
        PRODUCT VARIANTS
     ========================= */
 
-        let variants = [];
+    let variants = [];
 
     if (hasVariants) {
 
         try {
-            variants = getProductVariantsFromForm();
+
+            variants =
+                getProductVariantsFromForm();
+
         } catch (error) {
 
             showAlert(
                 'بيانات الأوزان غير صحيحة',
-                error.message || 'راجع الأوزان والأسعار',
+                error?.message ||
+                    'راجع الأوزان والأسعار',
                 'fa-circle-exclamation',
                 'bg-red-100 text-red-600'
             );
 
             return;
         }
+
 
         if (!variants.length) {
 
@@ -4213,6 +3975,8 @@ async function handleAddNewProduct(e) {
             return;
         }
     }
+
+
     /* =========================
        CHECK DUPLICATE PRODUCT
     ========================= */
@@ -4226,10 +3990,10 @@ async function handleAddNewProduct(e) {
                     .replace(/\s+/g, ' ')
                     .toLowerCase();
 
-            // أثناء التعديل: اسم المنتج الحالي مسموح يفضل زي ما هو
             if (
                 editingProductId &&
-                String(product.id) === String(editingProductId)
+                String(product.id) ===
+                    String(editingProductId)
             ) {
                 return false;
             }
@@ -4278,10 +4042,12 @@ async function handleAddNewProduct(e) {
                 ),
 
             available:
-                document.getElementById('newProdAvailable')
-                    ? document
-                        .getElementById('newProdAvailable')
-                        .checked
+                document.getElementById(
+                    'newProdAvailable'
+                )
+                    ? document.getElementById(
+                        'newProdAvailable'
+                    ).checked
                     : true,
 
             hasDiscount,
@@ -4306,29 +4072,17 @@ async function handleAddNewProduct(e) {
 
     try {
 
-
         /* =========================
            EDIT PRODUCT
         ========================= */
 
         if (editingProductId) {
 
-            if (editingProductId) {
-
-    await saveProductRecord({
-        mode: 'update',
-        id: editingProductId,
-        payload
-    });
-
-    showAlert(
-        'تم التعديل',
-        'تم تعديل المنتج وحفظ التغييرات بنجاح',
-        'fa-pen-to-square',
-        'bg-blue-100 text-blue-600'
-    );
-}
-}
+            await saveProductRecord({
+                mode: 'update',
+                id: editingProductId,
+                payload
+            });
 
 
             showAlert(
@@ -4337,7 +4091,6 @@ async function handleAddNewProduct(e) {
                 'fa-pen-to-square',
                 'bg-blue-100 text-blue-600'
             );
-
         }
 
 
@@ -4347,107 +4100,98 @@ async function handleAddNewProduct(e) {
 
         else {
 
-    try {
+            try {
 
-        const savedProduct =
-            await saveProductRecord({
-                mode: 'insert',
-                payload
-            });
+                const savedProduct =
+                    await saveProductRecord({
+                        mode: 'insert',
+                        payload
+                    });
 
-        const productId =
-            savedProduct?.id ||
-            savedProduct?.data?.id;
 
-        if (!productId) {
+                const productId =
+                    savedProduct?.id ||
+                    savedProduct?.data?.id;
 
-            throw new Error(
-                'تم حفظ المنتج لكن لم يتم الحصول على رقم المنتج لحفظ الأوزان'
-            );
 
-        }
+                if (!productId) {
 
-        // حفظ الأوزان لو المنتج له أوزان
-        if (hasVariants && variants.length) {
+                    throw new Error(
+                        'تم حفظ المنتج لكن لم يتم الحصول على رقم المنتج لحفظ الأوزان'
+                    );
+                }
 
-            const variantsPayload =
-                variants.map(variant => ({
-                    product_id: productId,
-                    label: variant.label,
-                    price: variant.price,
-                    old_price: variant.old_price,
-                    stock: 0,
-                    is_active: true,
-                    display_order:
-                        variant.display_order
-                }));
 
-            const {
-                error: variantsError
-            } = await marketSupabase
-                .from('product_variants')
-                .insert(variantsPayload);
+                /* =========================
+                   SAVE VARIANTS
+                ========================= */
 
-            if (variantsError) {
+                if (
+                    hasVariants &&
+                    variants.length
+                ) {
 
-                // لو حفظ الأوزان فشل
-                // نحذف المنتج الأساسي حتى لا يفضل منتج ناقص
-                await marketSupabase
-                    .from('products')
-                    .delete()
-                    .eq('id', productId);
+                    const variantsPayload =
+                        variants.map(variant => ({
+                            product_id:
+                                productId,
 
-                throw variantsError;
-            }
-        }
+                            label:
+                                variant.label,
 
-    } catch (error) {
+                            price:
+                                variant.price,
 
-        const errorCode =
-            String(error?.code || '');
+                            old_price:
+                                variant.old_price,
 
-        const errorMessage =
-            String(error?.message || '');
+                            stock:
+                                0,
 
-        if (
-            errorCode === '23505' ||
-            errorMessage.includes(
-                'products_name_unique_idx'
-            )
-        ) {
+                            is_active:
+                                true,
 
-            showAlert(
-                'المنتج موجود بالفعل',
-                `المنتج "${name}" مضاف بالفعل ولا يمكن إضافته مرة أخرى`,
-                'fa-circle-exclamation',
-                'bg-red-100 text-red-600'
-            );
+                            display_order:
+                                variant.display_order
+                        }));
 
-            return;
-        }
 
-        throw error;
-    }
+                    const {
+                        error: variantsError
+                    } = await marketSupabase
+                        .from('product_variants')
+                        .insert(
+                            variantsPayload
+                        );
 
-    showAlert(
-        'تمت الإضافة',
-        `تمت إضافة المنتج "${name}" بنجاح`,
-        'fa-circle-check',
-        'bg-green-100 text-green-600'
-    );
-}
+
+                    if (variantsError) {
+
+                        await marketSupabase
+                            .from('products')
+                            .delete()
+                            .eq(
+                                'id',
+                                productId
+                            );
+
+                        throw variantsError;
+                    }
+                }
+
+
+            } catch (error) {
 
                 const errorCode =
-                    String(error?.code || '');
+                    String(
+                        error?.code || ''
+                    );
 
                 const errorMessage =
-                    String(error?.message || '');
+                    String(
+                        error?.message || ''
+                    );
 
-
-                /*
-                 * PostgreSQL duplicate key
-                 * 23505 = unique_violation
-                 */
 
                 if (
                     errorCode === '23505' ||
@@ -4481,7 +4225,7 @@ async function handleAddNewProduct(e) {
 
 
         /* =========================
-           RESET FORM + REFRESH
+           RESET + REFRESH
         ========================= */
 
         cancelProductEdit();
@@ -4500,7 +4244,7 @@ async function handleAddNewProduct(e) {
         showAlert(
             'حدث خطأ',
             error?.message ||
-            'حدث خطأ أثناء حفظ المنتج',
+                'حدث خطأ أثناء حفظ المنتج',
             'fa-xmark',
             'bg-red-100 text-red-600'
         );
@@ -4519,6 +4263,8 @@ async function handleAddNewProduct(e) {
         }
     }
 }
+```
+
 
     function editProduct(id) {
 
