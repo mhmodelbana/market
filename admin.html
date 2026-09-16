@@ -1123,43 +1123,79 @@ let productSuggestions = [];
     };
 
     async function detectProductSchema() {
-        const checks = [
-            { key: 'description', query: 'description' },
-            { key: 'stock', query: 'stock' },
-            { key: 'available', query: 'available' },
-            { key: 'image_url', query: 'image_url' },
-            { key: 'old_price', query: 'old_price' },
-            { key: 'has_discount', query: 'has_discount' }
-        ];
 
-        for (const check of checks) {
-            try {
-                const { error } = await marketSupabase
-                    .from('products')
-                    .select(check.query)
-                    .limit(1);
+    const checks = [
+        { key: 'description', query: 'description' },
+        { key: 'stock', query: 'stock' },
+        { key: 'available', query: 'available' },
+        { key: 'image_url', query: 'image_url' },
+        { key: 'old_price', query: 'old_price' },
+        { key: 'has_discount', query: 'has_discount' }
+    ];
 
-                if (check.key === 'has_discount' || check.key === 'old_price') {
-                    PRODUCT_SCHEMA.supportsDiscountColumns = !error;
+    PRODUCT_SCHEMA.supportsDiscountColumns = false;
+
+    for (const check of checks) {
+
+        try {
+
+            const { error } = await marketSupabase
+                .from('products')
+                .select(check.query)
+                .limit(1);
+
+            if (!error) {
+
+                if (check.key === 'description') {
+                    PRODUCT_SCHEMA.supportsDescription = true;
                 }
 
-                if (!error) {
-                    if (check.key === 'description') PRODUCT_SCHEMA.supportsDescription = true;
-                    if (check.key === 'stock') PRODUCT_SCHEMA.supportsStock = true;
-                    if (check.key === 'available') PRODUCT_SCHEMA.supportsAvailable = true;
-                    if (check.key === 'image_url') PRODUCT_SCHEMA.supportsImageUrl = true;
+                if (check.key === 'stock') {
+                    PRODUCT_SCHEMA.supportsStock = true;
                 }
-            } catch (error) {
-                if (check.key === 'has_discount' || check.key === 'old_price') {
-                    PRODUCT_SCHEMA.supportsDiscountColumns = false;
+
+                if (check.key === 'available') {
+                    PRODUCT_SCHEMA.supportsAvailable = true;
                 }
-                if (check.key === 'description') PRODUCT_SCHEMA.supportsDescription = false;
-                if (check.key === 'stock') PRODUCT_SCHEMA.supportsStock = false;
-                if (check.key === 'available') PRODUCT_SCHEMA.supportsAvailable = false;
-                if (check.key === 'image_url') PRODUCT_SCHEMA.supportsImageUrl = false;
+
+                if (check.key === 'image_url') {
+                    PRODUCT_SCHEMA.supportsImageUrl = true;
+                }
+
+                if (
+                    check.key === 'has_discount' ||
+                    check.key === 'old_price'
+                ) {
+                    PRODUCT_SCHEMA.supportsDiscountColumns = true;
+                }
             }
+
+        } catch (error) {
+
+            if (check.key === 'description') {
+                PRODUCT_SCHEMA.supportsDescription = false;
+            }
+
+            if (check.key === 'stock') {
+                PRODUCT_SCHEMA.supportsStock = false;
+            }
+
+            if (check.key === 'available') {
+                PRODUCT_SCHEMA.supportsAvailable = false;
+            }
+
+            if (check.key === 'image_url') {
+                PRODUCT_SCHEMA.supportsImageUrl = false;
+            }
+
         }
     }
+
+    console.log(
+        'Product schema detected:',
+        PRODUCT_SCHEMA
+    );
+}
 
     function buildProductPayload({
         name,
@@ -1202,72 +1238,172 @@ let productSuggestions = [];
     }
 
     async function saveProductRecord({
-        mode,
-        id,
-        payload
-    }) {
-        const query = marketSupabase
-            .from('products');
+    mode,
+    id,
+    payload
+}) {
 
-        const cleanPayload = {
-            ...payload
-        };
+    const cleanPayload = {
+        ...payload
+    };
 
-        delete cleanPayload.old_price;
-        delete cleanPayload.has_discount;
+    // الأعمدة دي ممكن تكون مش موجودة في قاعدة البيانات
+    delete cleanPayload.old_price;
+    delete cleanPayload.has_discount;
 
-        const operation = mode === 'update'
-            ? query.update(cleanPayload).eq('id', id)
-            : query.insert(cleanPayload);
+
+    // =========================================================
+    // UPDATE PRODUCT
+    // =========================================================
+
+    if (mode === 'update') {
 
         const {
+            data,
             error
-        } = await operation;
+        } = await marketSupabase
+            .from('products')
+            .update(cleanPayload)
+            .eq('id', id)
+            .select()
+            .single();
 
-        if (error) {
-            const message = String(error.message || '');
-            const isLegacyColumnError = message.includes('has_discount') || message.includes('old_price');
+        if (!error) {
+            return data;
+        }
 
-            if (isLegacyColumnError) {
-                const legacySafePayload = {
-                    name: cleanPayload.name,
-                    price: cleanPayload.price,
-                    category: cleanPayload.category,
-                    unit: cleanPayload.unit,
-                    image_url: cleanPayload.image_url,
-                    ...(cleanPayload.description !== undefined ? { description: cleanPayload.description } : {}),
-                    ...(cleanPayload.stock !== undefined ? { stock: cleanPayload.stock } : {}),
-                    ...(cleanPayload.available !== undefined ? { available: cleanPayload.available } : {})
-                };
+        const message = String(error.message || '');
 
-                if (mode === 'update') {
-                    const fallbackResult = await marketSupabase
-                        .from('products')
-                        .update(legacySafePayload)
-                        .eq('id', id);
+        const isLegacyColumnError =
+            message.includes('has_discount') ||
+            message.includes('old_price');
 
-                    if (fallbackResult.error) {
-                        throw fallbackResult.error;
-                    }
-
-                    return;
-                }
-
-                const fallbackResult = await marketSupabase
-                    .from('products')
-                    .insert(legacySafePayload);
-
-                if (fallbackResult.error) {
-                    throw fallbackResult.error;
-                }
-
-                return;
-            }
-
+        if (!isLegacyColumnError) {
             throw error;
         }
+
+
+        // Fallback للنسخة القديمة من جدول products
+
+        const legacySafePayload = {
+            name: cleanPayload.name,
+            price: cleanPayload.price,
+            category: cleanPayload.category,
+            unit: cleanPayload.unit,
+            image_url: cleanPayload.image_url,
+
+            ...(cleanPayload.description !== undefined
+                ? {
+                    description: cleanPayload.description
+                }
+                : {}),
+
+            ...(cleanPayload.stock !== undefined
+                ? {
+                    stock: cleanPayload.stock
+                }
+                : {}),
+
+            ...(cleanPayload.available !== undefined
+                ? {
+                    available: cleanPayload.available
+                }
+                : {})
+        };
+
+
+        const fallbackResult =
+            await marketSupabase
+                .from('products')
+                .update(legacySafePayload)
+                .eq('id', id)
+                .select()
+                .single();
+
+
+        if (fallbackResult.error) {
+            throw fallbackResult.error;
+        }
+
+        return fallbackResult.data;
     }
 
+
+    // =========================================================
+    // INSERT PRODUCT
+    // =========================================================
+
+    const {
+        data,
+        error
+    } = await marketSupabase
+        .from('products')
+        .insert(cleanPayload)
+        .select()
+        .single();
+
+
+    if (!error) {
+        return data;
+    }
+
+
+    const message = String(error.message || '');
+
+    const isLegacyColumnError =
+        message.includes('has_discount') ||
+        message.includes('old_price');
+
+
+    if (!isLegacyColumnError) {
+        throw error;
+    }
+
+
+    // Fallback للنسخة القديمة
+
+    const legacySafePayload = {
+        name: cleanPayload.name,
+        price: cleanPayload.price,
+        category: cleanPayload.category,
+        unit: cleanPayload.unit,
+        image_url: cleanPayload.image_url,
+
+        ...(cleanPayload.description !== undefined
+            ? {
+                description: cleanPayload.description
+            }
+            : {}),
+
+        ...(cleanPayload.stock !== undefined
+            ? {
+                stock: cleanPayload.stock
+            }
+            : {}),
+
+        ...(cleanPayload.available !== undefined
+            ? {
+                available: cleanPayload.available
+            }
+            : {})
+    };
+
+
+    const fallbackResult =
+        await marketSupabase
+            .from('products')
+            .insert(legacySafePayload)
+            .select()
+            .single();
+
+
+    if (fallbackResult.error) {
+        throw fallbackResult.error;
+    }
+
+
+    return fallbackResult.data;
+}
     // =========================================================
     // INITIALIZATION
     // =========================================================
@@ -3263,9 +3399,14 @@ async function toggleProductAvailability(id) {
 }
 
 function renderAdminProductsList() {
+    const countElement = document.getElementById('adminProdCount');
 
-    document.getElementById('adminProdCount').innerText =
-        products.length;
+    if (countElement) {
+        countElement.innerText = products.length;
+    }
+
+    filterAdminProducts();
+}
 
     filterAdminProducts();
 }
@@ -3531,7 +3672,7 @@ async function handleAddNewProduct(e) {
         return;
     }
 
-    if (!Number.isFinite(price) || price < 0) {
+       if (!hasVariants && (!Number.isFinite(price) || price < 0)) {
 
         showAlert(
             'خطأ',
@@ -3605,7 +3746,43 @@ async function handleAddNewProduct(e) {
             .replace(/\s+/g, ' ')
             .toLowerCase();
 
+    /* =========================
+       PRODUCT VARIANTS
+    ========================= */
 
+    const hasVariants =
+        document.getElementById('newProdHasVariants')?.checked === true;
+
+    let variants = [];
+
+    if (hasVariants) {
+
+        try {
+            variants = getProductVariantsFromForm();
+        } catch (error) {
+
+            showAlert(
+                'بيانات الأوزان غير صحيحة',
+                error.message || 'راجع الأوزان والأسعار',
+                'fa-circle-exclamation',
+                'bg-red-100 text-red-600'
+            );
+
+            return;
+        }
+
+        if (!variants.length) {
+
+            showAlert(
+                'الأوزان ناقصة',
+                'أضف وزن واحد على الأقل مع تحديد السعر',
+                'fa-circle-exclamation',
+                'bg-yellow-100 text-yellow-600'
+            );
+
+            return;
+        }
+    }
     /* =========================
        CHECK DUPLICATE PRODUCT
     ========================= */
@@ -3706,14 +3883,49 @@ async function handleAddNewProduct(e) {
 
         if (editingProductId) {
 
-            await saveProductRecord({
+            const savedProduct = await saveProductRecord({
+    mode: 'insert',
+    payload
+});
 
-                mode: 'update',
+const productId =
+    savedProduct?.id ||
+    savedProduct?.data?.id;
 
-                id: editingProductId,
+if (!productId) {
+    throw new Error(
+        'تم حفظ المنتج لكن لم يتم الحصول على رقم المنتج لحفظ الأوزان'
+    );
+}
 
-                payload
-            });
+if (hasVariants && variants.length) {
+
+    const variantsPayload = variants.map(variant => ({
+        product_id: productId,
+        label: variant.label,
+        price: variant.price,
+        old_price: variant.old_price,
+        stock: 0,
+        is_active: true,
+        display_order: variant.display_order
+    }));
+
+    const {
+        error: variantsError
+    } = await marketSupabase
+        .from('product_variants')
+        .insert(variantsPayload);
+
+    if (variantsError) {
+        // حذف المنتج لو فشل حفظ أوزانه
+        await marketSupabase
+            .from('products')
+            .delete()
+            .eq('id', productId);
+
+        throw variantsError;
+    }
+}
 
 
             showAlert(
@@ -4705,7 +4917,18 @@ function getProductVariantsFromForm() {
             throw new Error(`من فضلك اكتب اسم الوزن في الصف رقم ${index + 1}`);
         }
 
-        if (!Number.isFinite(price) || price <= 0) {
+        if (
+    !hasVariants &&
+    (!Number.isFinite(price) || price < 0)
+) {
+    showAlert(
+        'السعر غير صحيح',
+        'من فضلك أدخل سعر المنتج',
+        'fa-circle-exclamation',
+        'bg-yellow-100 text-yellow-600'
+    );
+    return;
+}
             throw new Error(`من فضلك اكتب سعر صحيح للوزن ${label}`);
         }
 
