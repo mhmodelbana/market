@@ -472,6 +472,30 @@
                 class="text-sm text-slate-500 leading-7 mt-3"
             ></p>
 
+            <!-- Weight Selection -->
+<div id="productDetailsWeightBox" class="hidden mt-5">
+
+    <div class="flex items-center justify-between mb-3">
+
+        <label class="text-sm font-black text-slate-800">
+            اختار الوزن
+        </label>
+
+        <span
+            id="productDetailsSelectedWeight"
+            class="text-xs font-bold text-brand-600"
+        >
+            500 جم
+        </span>
+
+    </div>
+
+    <div
+        id="productDetailsWeights"
+        class="grid grid-cols-2 sm:grid-cols-4 gap-2"
+    ></div>
+
+</div>
             <!-- Price -->
             <div class="mt-5 flex items-end gap-3 flex-wrap">
 
@@ -862,19 +886,24 @@ let currentSort = 'default';
 
                 if (productsData.length) {
                     products = productsData.map(product => ({
-                        id: product.id,
-                        name: product.name,
-                        description: product.description || '',
-                        price: Number(product.price || 0),
-                        oldPrice: product.old_price !== null && product.old_price !== undefined ? Number(product.old_price || 0) : 0,
-                        hasDiscount: product.has_discount !== null && product.has_discount !== undefined ? Boolean(product.has_discount) : false,
-                        category: product.category || 'all',
-                        unit: product.unit || 'قطعة',
-                        stock: Number(product.stock ?? 0),
-                        available: product.available !== false,
-                        image: product.image_url || product.image || '',
-                        qty: 0
-                    }));
+    id: product.id,
+    name: product.name,
+    description: product.description || '',
+    price: Number(product.price || 0),
+    oldPrice: product.old_price !== null && product.old_price !== undefined ? Number(product.old_price || 0) : 0,
+    hasDiscount: product.has_discount !== null && product.has_discount !== undefined ? Boolean(product.has_discount) : false,
+    category: product.category || 'all',
+    unit: product.unit || 'قطعة',
+    stock: Number(product.stock ?? 0),
+    available: product.available !== false,
+    image: product.image_url || product.image || '',
+    qty: 0
+}));
+                    products.forEach(product => {
+    if (product.name.includes('مخلل ليمون')) {
+        product.weights = [250, 500, 750, 1000];
+    }
+});
                 } else {
                     products = [];
                 }
@@ -1290,7 +1319,140 @@ let currentSort = 'default';
 
 let currentProductDetailsId = null;
 let productDetailsQty = 1;
+let currentProductDetailsWeight = 1000;
 
+        function formatWeight(weight) {
+
+    const grams = Number(weight || 0);
+
+    if (grams >= 1000) {
+
+        const kg = grams / 1000;
+
+        return Number.isInteger(kg)
+            ? `${kg} كجم`
+            : `${kg.toFixed(2)} كجم`;
+    }
+
+    return `${grams} جم`;
+}
+
+
+function calculateWeightPrice(pricePer1000, weight) {
+
+    return (
+        Number(pricePer1000 || 0) *
+        Number(weight || 1000)
+    ) / 1000;
+}
+
+
+function selectProductDetailsWeight(weight) {
+
+    const product = products.find(
+        p => String(p.id) === String(currentProductDetailsId)
+    );
+
+    if (!product) return;
+
+    currentProductDetailsWeight = Number(weight);
+
+    const price =
+        calculateWeightPrice(
+            product.price,
+            currentProductDetailsWeight
+        );
+
+    const priceElement =
+        document.getElementById('productDetailsPrice');
+
+    const selectedWeightElement =
+        document.getElementById('productDetailsSelectedWeight');
+
+    if (priceElement) {
+        priceElement.textContent =
+            formatPrice(price);
+    }
+
+    if (selectedWeightElement) {
+        selectedWeightElement.textContent =
+            formatWeight(currentProductDetailsWeight);
+    }
+
+    renderProductDetailsWeights();
+}
+
+
+function renderProductDetailsWeights() {
+
+    const container =
+        document.getElementById('productDetailsWeights');
+
+    if (!container) return;
+
+    const product = products.find(
+        p => String(p.id) === String(currentProductDetailsId)
+    );
+
+    if (!product) return;
+
+    const weights = product.weights || [];
+
+    if (!weights.length) {
+
+        container.innerHTML = '';
+
+        return;
+    }
+
+    container.innerHTML = weights.map(weight => {
+
+        const selected =
+            Number(weight) ===
+            Number(currentProductDetailsWeight);
+
+        const price =
+            calculateWeightPrice(
+                product.price,
+                weight
+            );
+
+        return `
+            <button
+                type="button"
+                onclick="selectProductDetailsWeight(${weight})"
+                class="
+                    rounded-2xl
+                    border
+                    px-3
+                    py-3
+                    text-center
+                    transition-all
+                    ${
+                        selected
+                            ? 'border-brand-600 bg-brand-50 text-brand-700 ring-2 ring-brand-100'
+                            : 'border-slate-200 bg-white text-slate-700 hover:border-brand-300'
+                    }
+                "
+            >
+
+                <div class="font-black text-sm">
+                    ${formatWeight(weight)}
+                </div>
+
+                <div class="text-xs font-bold mt-1 ${
+                    selected
+                        ? 'text-brand-600'
+                        : 'text-slate-400'
+                }">
+                    ${formatPrice(price)} ج.م
+                </div>
+
+            </button>
+        `;
+
+    }).join('');
+}
 function openProductDetails(productId) {
 
     const product = products.find(
@@ -1303,6 +1465,30 @@ function openProductDetails(productId) {
     }
 
     currentProductDetailsId = String(product.id);
+    const weights = product.weights || [];
+
+const weightBox =
+    document.getElementById('productDetailsWeightBox');
+
+if (weights.length) {
+
+    currentProductDetailsWeight =
+        weights.includes(500)
+            ? 500
+            : weights[0];
+
+    if (weightBox) {
+        weightBox.classList.remove('hidden');
+    }
+
+} else {
+
+    currentProductDetailsWeight = 1000;
+
+    if (weightBox) {
+        weightBox.classList.add('hidden');
+    }
+}
 
     /*
         الكمية الحالية من السلة
@@ -1373,13 +1559,30 @@ function openProductDetails(productId) {
     /*
         PRICE
     */
-    const priceElement =
-        document.getElementById('productDetailsPrice');
+   const priceElement =
+    document.getElementById('productDetailsPrice');
 
-    if (priceElement) {
-        priceElement.textContent =
-            formatPrice(product.price);
-    }
+if (priceElement) {
+
+    const currentPrice =
+        calculateWeightPrice(
+            product.price,
+            currentProductDetailsWeight
+        );
+
+    priceElement.textContent =
+        formatPrice(currentPrice);
+}
+    const selectedWeightElement =
+    document.getElementById('productDetailsSelectedWeight');
+
+if (selectedWeightElement) {
+
+    selectedWeightElement.textContent =
+        formatWeight(currentProductDetailsWeight);
+}
+
+renderProductDetailsWeights();
 
     /*
         UNIT
@@ -1599,7 +1802,9 @@ function closeProductDetails() {
 
         currentProductDetailsId = null;
 
-        productDetailsQty = 1;
+productDetailsQty = 1;
+
+currentProductDetailsWeight = 1000;
 
     }, 200);
 }
@@ -1702,6 +1907,14 @@ function addProductDetailsToCart() {
             1,
             Number(productDetailsQty || 1)
         );
+    const selectedWeight =
+    Number(currentProductDetailsWeight || 1000);
+
+const selectedPrice =
+    calculateWeightPrice(
+        product.price,
+        selectedWeight
+    );
 
     const existing =
         cart.find(
@@ -1717,10 +1930,22 @@ function addProductDetailsToCart() {
 
     } else {
 
-        cart.push({
-            ...product,
-            qty: quantity
-        });
+       cart.push({
+    ...product,
+
+    price: selectedPrice,
+
+    originalPricePer1000:
+        Number(product.price || 0),
+
+    weight:
+        selectedWeight,
+
+    weightLabel:
+        formatWeight(selectedWeight),
+
+    qty: quantity
+});
     }
 
     cart = normalizeCart(cart);
@@ -1732,10 +1957,10 @@ function addProductDetailsToCart() {
     updateCartUI();
 
     showAddToCartNotification(
-        quantity > 1
-            ? `${product.name} × ${quantity}`
-            : product.name
-    );
+    quantity > 1
+        ? `${product.name} - ${formatWeight(selectedWeight)} × ${quantity}`
+        : `${product.name} - ${formatWeight(selectedWeight)}`
+);
 
     closeProductDetails();
 }
