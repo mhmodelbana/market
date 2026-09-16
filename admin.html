@@ -3180,18 +3180,30 @@ async function deleteProductSuggestion(id) {
     // CATEGORY SELECTS
     // =========================================================
 
-    function populateCategoriesSelect() {
+   function populateCategoriesSelect() {
 
-        const select =
-            document.getElementById('newProdCategory');
+    const select =
+        document.getElementById('newProdCategory');
 
-        const filterSelect =
-            document.getElementById('filterCategory');
+    const filterSelect =
+        document.getElementById('filterCategory');
 
-        const editableCategories =
-            categories
-                .filter(c => c.id !== 'all')
-                .sort((a, b) => a.order - b.order);
+
+    const editableCategories =
+        categories
+            .filter(c => c.id !== 'all')
+            .sort(
+                (a, b) =>
+                    Number(a.order || 0) -
+                    Number(b.order || 0)
+            );
+
+
+    // ==============================
+    // Product Category Select
+    // ==============================
+
+    if (select) {
 
         if (editableCategories.length === 0) {
 
@@ -3208,12 +3220,50 @@ async function deleteProductSuggestion(id) {
             select.disabled = false;
 
             select.innerHTML =
-                editableCategories.map(cat => `
-                    <option value="${escapeHTML(cat.id)}">
-                        ${escapeHTML(cat.name)}
-                    </option>
-                `).join('');
+                editableCategories
+                    .map(cat => `
+                        <option value="${escapeHTML(cat.id)}">
+                            ${escapeHTML(cat.name)}
+                        </option>
+                    `)
+                    .join('');
         }
+
+
+        // لو بنعدل منتج
+        if (editingProductId) {
+
+            const product =
+                products.find(
+                    p =>
+                        String(p.id) ===
+                        String(editingProductId)
+                );
+
+
+            if (product) {
+
+                select.value =
+                    product.category || '';
+
+            }
+
+        }
+
+    } else {
+
+        console.warn(
+            'newProdCategory element not found'
+        );
+
+    }
+
+
+    // ==============================
+    // Product Filter Select
+    // ==============================
+
+    if (filterSelect) {
 
         filterSelect.innerHTML = `
             <option value="all">
@@ -3221,28 +3271,25 @@ async function deleteProductSuggestion(id) {
             </option>
 
             ${
-                editableCategories.map(cat => `
-                    <option value="${escapeHTML(cat.id)}">
-                        ${escapeHTML(cat.name)}
-                    </option>
-                `).join('')
+                editableCategories
+                    .map(cat => `
+                        <option value="${escapeHTML(cat.id)}">
+                            ${escapeHTML(cat.name)}
+                        </option>
+                    `)
+                    .join('')
             }
         `;
 
-        // لو كنا بنعدل منتج
-        if (editingProductId) {
+    } else {
 
-            const product =
-                products.find(
-                    p => p.id === editingProductId
-                );
+        console.warn(
+            'filterCategory element not found'
+        );
 
-            if (product) {
-                select.value = product.category;
-            }
-        }
     }
 
+}
     // =========================================================
     // STATS
     // =========================================================
