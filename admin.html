@@ -3819,6 +3819,8 @@ async function handleAddNewProduct(e) {
     const hasDiscount =
         document.getElementById('newProdHasDiscount')
             .checked;
+    const hasVariants =
+    document.getElementById('newProdHasVariants')?.checked === true;
 
     const oldPriceValue =
         document.getElementById('newProdOldPrice')
@@ -4055,48 +4057,21 @@ async function handleAddNewProduct(e) {
 
         if (editingProductId) {
 
-            const savedProduct = await saveProductRecord({
-    mode: 'insert',
-    payload
-});
+            if (editingProductId) {
 
-const productId =
-    savedProduct?.id ||
-    savedProduct?.data?.id;
+    await saveProductRecord({
+        mode: 'update',
+        id: editingProductId,
+        payload
+    });
 
-if (!productId) {
-    throw new Error(
-        'تم حفظ المنتج لكن لم يتم الحصول على رقم المنتج لحفظ الأوزان'
+    showAlert(
+        'تم التعديل',
+        'تم تعديل المنتج وحفظ التغييرات بنجاح',
+        'fa-pen-to-square',
+        'bg-blue-100 text-blue-600'
     );
 }
-
-if (hasVariants && variants.length) {
-
-    const variantsPayload = variants.map(variant => ({
-        product_id: productId,
-        label: variant.label,
-        price: variant.price,
-        old_price: variant.old_price,
-        stock: 0,
-        is_active: true,
-        display_order: variant.display_order
-    }));
-
-    const {
-        error: variantsError
-    } = await marketSupabase
-        .from('product_variants')
-        .insert(variantsPayload);
-
-    if (variantsError) {
-        // حذف المنتج لو فشل حفظ أوزانه
-        await marketSupabase
-            .from('products')
-            .delete()
-            .eq('id', productId);
-
-        throw variantsError;
-    }
 }
 
 
@@ -4116,16 +4091,95 @@ if (hasVariants && variants.length) {
 
         else {
 
-            try {
+    try {
 
-                await saveProductRecord({
+        const savedProduct =
+            await saveProductRecord({
+                mode: 'insert',
+                payload
+            });
 
-                    mode: 'insert',
+        const productId =
+            savedProduct?.id ||
+            savedProduct?.data?.id;
 
-                    payload
-                });
+        if (!productId) {
 
-            } catch (error) {
+            throw new Error(
+                'تم حفظ المنتج لكن لم يتم الحصول على رقم المنتج لحفظ الأوزان'
+            );
+
+        }
+
+        // حفظ الأوزان لو المنتج له أوزان
+        if (hasVariants && variants.length) {
+
+            const variantsPayload =
+                variants.map(variant => ({
+                    product_id: productId,
+                    label: variant.label,
+                    price: variant.price,
+                    old_price: variant.old_price,
+                    stock: 0,
+                    is_active: true,
+                    display_order:
+                        variant.display_order
+                }));
+
+            const {
+                error: variantsError
+            } = await marketSupabase
+                .from('product_variants')
+                .insert(variantsPayload);
+
+            if (variantsError) {
+
+                // لو حفظ الأوزان فشل
+                // نحذف المنتج الأساسي حتى لا يفضل منتج ناقص
+                await marketSupabase
+                    .from('products')
+                    .delete()
+                    .eq('id', productId);
+
+                throw variantsError;
+            }
+        }
+
+    } catch (error) {
+
+        const errorCode =
+            String(error?.code || '');
+
+        const errorMessage =
+            String(error?.message || '');
+
+        if (
+            errorCode === '23505' ||
+            errorMessage.includes(
+                'products_name_unique_idx'
+            )
+        ) {
+
+            showAlert(
+                'المنتج موجود بالفعل',
+                `المنتج "${name}" مضاف بالفعل ولا يمكن إضافته مرة أخرى`,
+                'fa-circle-exclamation',
+                'bg-red-100 text-red-600'
+            );
+
+            return;
+        }
+
+        throw error;
+    }
+
+    showAlert(
+        'تمت الإضافة',
+        `تمت إضافة المنتج "${name}" بنجاح`,
+        'fa-circle-check',
+        'bg-green-100 text-green-600'
+    );
+}
 
                 const errorCode =
                     String(error?.code || '');
