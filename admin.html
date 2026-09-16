@@ -135,7 +135,6 @@
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex flex-wrap gap-2" role="navigation" aria-label="أقسام لوحة الإدارة">
                 <button type="button" onclick="showAdminSection('dashboard', this)" class="admin-nav-btn bg-brand-600 text-white px-4 py-2 rounded-xl text-xs font-bold" aria-current="page"><i class="fa-solid fa-chart-pie ml-1"></i> الرئيسية</button>
                 <button type="button" onclick="showAdminSection('products', this)" class="admin-nav-btn bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2 rounded-xl text-xs font-bold"><i class="fa-solid fa-box ml-1"></i> المنتجات</button>
-                <button type="button" onclick="showAdminSection('add-product', this)" class="admin-nav-btn bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2 rounded-xl text-xs font-bold"><i class="fa-solid fa-circle-plus ml-1"></i> إضافة منتج</button>
                 <button type="button" onclick="showAdminSection('categories', this)" class="admin-nav-btn bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2 rounded-xl text-xs font-bold"><i class="fa-solid fa-layer-group ml-1"></i> الأقسام</button>
                 <button type="button" onclick="showAdminSection('suggestions', this)" class="admin-nav-btn bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2 rounded-xl text-xs font-bold"><i class="fa-solid fa-lightbulb ml-1"></i> الاقتراحات</button>
                 <button type="button" onclick="showAdminSection('settings', this)" class="admin-nav-btn bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2 rounded-xl text-xs font-bold"><i class="fa-solid fa-store ml-1"></i> إعدادات المتجر</button>
@@ -705,8 +704,9 @@
             </div>
 </section>
 
-            <!-- Add Product Form -->
-            <section id="admin-section-add-product" class="admin-section hidden">
+            <!-- Products Management -->
+            <section id="admin-section-products" class="admin-section hidden">
+                <!-- Add Product Form (merged into Products) -->
 <div class="bg-white rounded-3xl shadow-sm border border-slate-200 p-6 mb-8">
                 <h3 class="text-lg font-black text-slate-900 mb-6 flex items-center gap-2">
                     <i class="fa-solid fa-plus-circle text-brand-600"></i>
@@ -770,10 +770,6 @@
                     </div>
                 </form>
             </div>
-</section>
-
-            <!-- Products Management -->
-            <section id="admin-section-products" class="admin-section hidden">
 <div class="bg-white rounded-3xl shadow-sm border border-slate-200 p-6">
                 <div class="flex items-center justify-between mb-6">
                     <h3 class="text-lg font-black text-slate-900 flex items-center gap-2">
