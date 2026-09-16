@@ -3944,6 +3944,7 @@ async function handleAddNewProduct(e) {
 
     try {
 
+        ```js
         /* =========================
            EDIT PRODUCT
         ========================= */
@@ -3951,15 +3952,10 @@ async function handleAddNewProduct(e) {
         if (editingProductId) {
 
             await saveProductRecord({
-
                 mode: 'update',
-
                 id: editingProductId,
-
                 payload
-
             });
-
 
             showAlert(
                 'تم التعديل',
@@ -3977,30 +3973,22 @@ async function handleAddNewProduct(e) {
 
         else {
 
-            let savedProduct;
-
-
             try {
 
-                savedProduct =
+                const savedProduct =
                     await saveProductRecord({
-
                         mode: 'insert',
-
                         payload
-
                     });
-
 
                 const productId =
                     savedProduct?.id ||
                     savedProduct?.data?.id;
 
-
                 if (!productId) {
 
                     throw new Error(
-                        'تم حفظ المنتج لكن لم يتم الحصول على رقم المنتج'
+                        'تم حفظ المنتج لكن لم يتم الحصول على رقم المنتج لحفظ الأوزان'
                     );
 
                 }
@@ -4017,30 +4005,15 @@ async function handleAddNewProduct(e) {
 
                     const variantsPayload =
                         variants.map(variant => ({
-
-                            product_id:
-                                productId,
-
-                            label:
-                                variant.label,
-
-                            price:
-                                variant.price,
-
-                            old_price:
-                                variant.old_price,
-
-                            stock:
-                                0,
-
-                            is_active:
-                                true,
-
+                            product_id: productId,
+                            label: variant.label,
+                            price: variant.price,
+                            old_price: variant.old_price,
+                            stock: 0,
+                            is_active: true,
                             display_order:
                                 variant.display_order
-
                         }));
-
 
                     const {
                         error: variantsError
@@ -4049,7 +4022,6 @@ async function handleAddNewProduct(e) {
                         .insert(
                             variantsPayload
                         );
-
 
                     if (variantsError) {
 
@@ -4065,7 +4037,56 @@ async function handleAddNewProduct(e) {
                     }
                 }
 
+
             } catch (error) {
+
+                const errorCode =
+                    String(
+                        error?.code || ''
+                    );
+
+                const errorMessage =
+                    String(
+                        error?.message || ''
+                    );
+
+
+                /*
+                 * PostgreSQL duplicate key
+                 * 23505 = unique_violation
+                 */
+
+                if (
+                    errorCode === '23505' ||
+                    errorMessage.includes(
+                        'products_name_unique_idx'
+                    )
+                ) {
+
+                    showAlert(
+                        'المنتج موجود بالفعل',
+                        `المنتج "${name}" مضاف بالفعل ولا يمكن إضافته مرة أخرى`,
+                        'fa-circle-exclamation',
+                        'bg-red-100 text-red-600'
+                    );
+
+                    return;
+                }
+
+
+                throw error;
+            }
+
+
+            showAlert(
+                'تمت الإضافة',
+                `تمت إضافة المنتج "${name}" بنجاح`,
+                'fa-circle-check',
+                'bg-green-100 text-green-600'
+            );
+        }
+```
+
 
                 const errorCode =
                     String(
