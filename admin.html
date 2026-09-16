@@ -3797,34 +3797,40 @@ async function handleAddNewProduct(e) {
 
     const name =
         document.getElementById('newProdName')
-            .value.trim();
+            ?.value
+            ?.trim() || '';
 
     const price =
         Number(
-            document.getElementById('newProdPrice').value
+            document.getElementById('newProdPrice')
+                ?.value || 0
         );
 
     const unit =
         document.getElementById('newProdUnit')
-            .value.trim();
+            ?.value
+            ?.trim() || '';
 
     const category =
         document.getElementById('newProdCategory')
-            .value;
+            ?.value || '';
 
     const image =
         document.getElementById('newProdImage')
-            .value.trim();
+            ?.value
+            ?.trim() || '';
 
     const hasDiscount =
         document.getElementById('newProdHasDiscount')
-            .checked;
+            ?.checked === true;
+
     const hasVariants =
-    document.getElementById('newProdHasVariants')?.checked === true;
+        document.getElementById('newProdHasVariants')
+            ?.checked === true;
 
     const oldPriceValue =
         document.getElementById('newProdOldPrice')
-            .value;
+            ?.value || '';
 
     const oldPrice =
         Number(oldPriceValue);
@@ -3846,7 +3852,11 @@ async function handleAddNewProduct(e) {
         return;
     }
 
-       if (!hasVariants && (!Number.isFinite(price) || price < 0)) {
+
+    if (
+        !hasVariants &&
+        (!Number.isFinite(price) || price < 0)
+    ) {
 
         showAlert(
             'خطأ',
@@ -3857,6 +3867,7 @@ async function handleAddNewProduct(e) {
 
         return;
     }
+
 
     if (!unit) {
 
@@ -3870,6 +3881,7 @@ async function handleAddNewProduct(e) {
         return;
     }
 
+
     if (!category) {
 
         showAlert(
@@ -3882,6 +3894,7 @@ async function handleAddNewProduct(e) {
         return;
     }
 
+
     if (!image) {
 
         showAlert(
@@ -3893,6 +3906,7 @@ async function handleAddNewProduct(e) {
 
         return;
     }
+
 
     if (
         hasDiscount &&
@@ -3909,6 +3923,371 @@ async function handleAddNewProduct(e) {
         return;
     }
 
+
+    /* =========================
+       NORMALIZE PRODUCT NAME
+    ========================= */
+
+    const normalizedName =
+        name
+            .trim()
+            .replace(/\s+/g, ' ')
+            .toLowerCase();
+
+
+    /* =========================
+       PRODUCT VARIANTS
+    ========================= */
+
+    let variants = [];
+
+    if (hasVariants) {
+
+        try {
+
+            variants =
+                getProductVariantsFromForm();
+
+        } catch (error) {
+
+            showAlert(
+                'بيانات الأوزان غير صحيحة',
+                error?.message ||
+                    'راجع الأوزان والأسعار',
+                'fa-circle-exclamation',
+                'bg-red-100 text-red-600'
+            );
+
+            return;
+        }
+
+
+        if (!variants.length) {
+
+            showAlert(
+                'الأوزان ناقصة',
+                'أضف وزن واحد على الأقل مع تحديد السعر',
+                'fa-circle-exclamation',
+                'bg-yellow-100 text-yellow-600'
+            );
+
+            return;
+        }
+    }
+
+
+    /* =========================
+       CHECK DUPLICATE PRODUCT
+    ========================= */
+
+    const duplicateProduct =
+        products.find(product => {
+
+            const existingName =
+                String(product.name || '')
+                    .trim()
+                    .replace(/\s+/g, ' ')
+                    .toLowerCase();
+
+
+            if (
+                editingProductId &&
+                String(product.id) ===
+                    String(editingProductId)
+            ) {
+                return false;
+            }
+
+
+            return (
+                existingName ===
+                normalizedName
+            );
+
+        });
+
+
+    if (duplicateProduct) {
+
+        showAlert(
+            'المنتج موجود بالفعل',
+            `المنتج "${duplicateProduct.name}" مضاف بالفعل ولا يمكن إضافته مرة أخرى`,
+            'fa-circle-exclamation',
+            'bg-red-100 text-red-600'
+        );
+
+        return;
+    }
+
+
+    /* =========================
+       BUILD PAYLOAD
+    ========================= */
+
+    const payload =
+        buildProductPayload({
+
+            name,
+
+            price,
+
+            category,
+
+            unit,
+
+            image,
+
+            description:
+                document
+                    .getElementById('newProdDescription')
+                    ?.value
+                    ?.trim() || '',
+
+            stock:
+                Number(
+                    document
+                        .getElementById('newProdStock')
+                        ?.value || 0
+                ),
+
+            available:
+                document
+                    .getElementById(
+                        'newProdAvailable'
+                    )
+                    ? document
+                        .getElementById(
+                            'newProdAvailable'
+                        )
+                        .checked
+                    : true,
+
+            hasDiscount,
+
+            oldPrice
+        });
+
+
+    /* =========================
+       PREVENT DOUBLE CLICK
+    ========================= */
+
+    if (submitButton) {
+
+        submitButton.disabled = true;
+
+        submitButton.classList.add(
+            'opacity-50',
+            'cursor-not-allowed'
+        );
+    }
+
+
+    try {
+
+        /* =========================
+           EDIT PRODUCT
+        ========================= */
+
+        if (editingProductId) {
+
+            await saveProductRecord({
+
+                mode: 'update',
+
+                id: editingProductId,
+
+                payload
+
+            });
+
+
+            showAlert(
+                'تم التعديل',
+                'تم تعديل المنتج وحفظ التغييرات بنجاح',
+                'fa-pen-to-square',
+                'bg-blue-100 text-blue-600'
+            );
+
+        }
+
+
+        /* =========================
+           ADD NEW PRODUCT
+        ========================= */
+
+        else {
+
+            let savedProduct;
+
+
+            try {
+
+                savedProduct =
+                    await saveProductRecord({
+
+                        mode: 'insert',
+
+                        payload
+
+                    });
+
+
+                const productId =
+                    savedProduct?.id ||
+                    savedProduct?.data?.id;
+
+
+                if (!productId) {
+
+                    throw new Error(
+                        'تم حفظ المنتج لكن لم يتم الحصول على رقم المنتج'
+                    );
+
+                }
+
+
+                /* =========================
+                   SAVE VARIANTS
+                ========================= */
+
+                if (
+                    hasVariants &&
+                    variants.length
+                ) {
+
+                    const variantsPayload =
+                        variants.map(variant => ({
+
+                            product_id:
+                                productId,
+
+                            label:
+                                variant.label,
+
+                            price:
+                                variant.price,
+
+                            old_price:
+                                variant.old_price,
+
+                            stock:
+                                0,
+
+                            is_active:
+                                true,
+
+                            display_order:
+                                variant.display_order
+
+                        }));
+
+
+                    const {
+                        error: variantsError
+                    } = await marketSupabase
+                        .from('product_variants')
+                        .insert(
+                            variantsPayload
+                        );
+
+
+                    if (variantsError) {
+
+                        await marketSupabase
+                            .from('products')
+                            .delete()
+                            .eq(
+                                'id',
+                                productId
+                            );
+
+                        throw variantsError;
+                    }
+                }
+
+            } catch (error) {
+
+                const errorCode =
+                    String(
+                        error?.code || ''
+                    );
+
+                const errorMessage =
+                    String(
+                        error?.message || ''
+                    );
+
+
+                if (
+                    errorCode === '23505' ||
+                    errorMessage.includes(
+                        'products_name_unique_idx'
+                    )
+                ) {
+
+                    showAlert(
+                        'المنتج موجود بالفعل',
+                        `المنتج "${name}" مضاف بالفعل ولا يمكن إضافته مرة أخرى`,
+                        'fa-circle-exclamation',
+                        'bg-red-100 text-red-600'
+                    );
+
+                    return;
+                }
+
+
+                throw error;
+            }
+
+
+            showAlert(
+                'تمت الإضافة',
+                `تمت إضافة المنتج "${name}" بنجاح`,
+                'fa-circle-check',
+                'bg-green-100 text-green-600'
+            );
+
+        }
+
+
+        /* =========================
+           RESET + REFRESH
+        ========================= */
+
+        cancelProductEdit();
+
+        await refreshAdminData();
+
+    } catch (error) {
+
+        console.error(
+            'handleAddNewProduct error:',
+            error
+        );
+
+
+        showAlert(
+            'حدث خطأ',
+            error?.message ||
+                'حدث خطأ أثناء حفظ المنتج',
+            'fa-xmark',
+            'bg-red-100 text-red-600'
+        );
+
+    } finally {
+
+        if (submitButton) {
+
+            submitButton.disabled = false;
+
+            submitButton.classList.remove(
+                'opacity-50',
+                'cursor-not-allowed'
+            );
+        }
+    }
+}
 
     /* =========================
        NORMALIZE PRODUCT NAME
