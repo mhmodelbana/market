@@ -851,7 +851,7 @@ let currentCategory = 'all';
 let searchQuery = '';
 let currentSort = 'default';
         let currentPage = 1;
-const productsPerPage = 12;
+const productsPerPage = 24;
 
         function normalizeCart(items = []) {
             const map = new Map();
@@ -961,7 +961,7 @@ const productsPerPage = 12;
     loadCart();
 
     // إظهار Skeleton أثناء تحميل البيانات
-    renderProductSkeletons(12);
+    renderProductSkeletons(24);
 
     await loadStoreHours();
 
