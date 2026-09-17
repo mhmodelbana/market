@@ -5,8 +5,20 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>إدارة المتجر | لوحة التحكم</title>
-    <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 64 64%22><text y=%2252%22 font-size=%2252%22>🛒</text></svg>">
+    <!-- Tailwind CDN kept for the existing utility classes; its production warning is muted below. -->
+    <script>
+      (function () {
+        const originalWarn = console.warn;
+        console.warn = function (...args) {
+          const msg = args.map(String).join(' ');
+          if (msg.includes('cdn.tailwindcss.com should not be used in production')) return;
+          originalWarn.apply(console, args);
+        };
+        window.__restoreTailwindWarn = () => { console.warn = originalWarn; };
+      })();
+    </script>
+    <script src="https://cdn.tailwindcss.com" onload="window.__restoreTailwindWarn && window.__restoreTailwindWarn()"></script>
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Google Fonts: Cairo & Tajawal -->
@@ -362,46 +374,14 @@ let productSuggestions = [];
         supportsStock: true,
         supportsAvailable: true,
         supportsImageUrl: true,
+        // The current products table does not expose old_price/has_discount.
+        // Keep these disabled so no 400 schema-probe request is sent.
         supportsDiscountColumns: false
     };
 
     async function detectProductSchema() {
-        const checks = [
-            { key: 'description', query: 'description' },
-            { key: 'stock', query: 'stock' },
-            { key: 'available', query: 'available' },
-            { key: 'image_url', query: 'image_url' },
-            { key: 'old_price', query: 'old_price' },
-            { key: 'has_discount', query: 'has_discount' }
-        ];
-
-        for (const check of checks) {
-            try {
-                const { error } = await marketSupabase
-                    .from('products')
-                    .select(check.query)
-                    .limit(1);
-
-                if (check.key === 'has_discount' || check.key === 'old_price') {
-                    PRODUCT_SCHEMA.supportsDiscountColumns = !error;
-                }
-
-                if (!error) {
-                    if (check.key === 'description') PRODUCT_SCHEMA.supportsDescription = true;
-                    if (check.key === 'stock') PRODUCT_SCHEMA.supportsStock = true;
-                    if (check.key === 'available') PRODUCT_SCHEMA.supportsAvailable = true;
-                    if (check.key === 'image_url') PRODUCT_SCHEMA.supportsImageUrl = true;
-                }
-            } catch (error) {
-                if (check.key === 'has_discount' || check.key === 'old_price') {
-                    PRODUCT_SCHEMA.supportsDiscountColumns = false;
-                }
-                if (check.key === 'description') PRODUCT_SCHEMA.supportsDescription = false;
-                if (check.key === 'stock') PRODUCT_SCHEMA.supportsStock = false;
-                if (check.key === 'available') PRODUCT_SCHEMA.supportsAvailable = false;
-                if (check.key === 'image_url') PRODUCT_SCHEMA.supportsImageUrl = false;
-            }
-        }
+        // Intentionally no-op for discount columns.
+        // Probing missing columns creates a noisy 400 request in the browser console.
     }
 
     function buildProductPayload({
@@ -848,9 +828,6 @@ renderAdminUI();
             };
         }
 
-        console.log(
-            'تم تحميل البيانات من Supabase بنجاح'
-        );
     }
 
     async function refreshAdminData() {
