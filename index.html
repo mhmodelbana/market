@@ -892,6 +892,18 @@ function shuffleArray(array) {
 
     return shuffled;
 }
+// =========================================================
+// VISITOR ANALYTICS
+// =========================================================
+const ANALYTICS_STORAGE_KEY='store_analytics_device_id_v1',ANALYTICS_SESSION_KEY='store_analytics_session_id_v1';
+let analyticsDeviceId='',analyticsSessionId='',analyticsReady=false;
+function getAnalyticsDeviceId(){try{let id=localStorage.getItem(ANALYTICS_STORAGE_KEY);if(!id){id=crypto.randomUUID();localStorage.setItem(ANALYTICS_STORAGE_KEY,id);}return id;}catch{return crypto.randomUUID();}}
+function getAnalyticsSessionId(){try{let id=sessionStorage.getItem(ANALYTICS_SESSION_KEY);if(!id){id=crypto.randomUUID();sessionStorage.setItem(ANALYTICS_SESSION_KEY,id);}return id;}catch{return crypto.randomUUID();}}
+async function initAnalytics(){if(!window.marketSupabase||analyticsReady)return;analyticsDeviceId=getAnalyticsDeviceId();analyticsSessionId=getAnalyticsSessionId();analyticsReady=true;await touchAnalyticsSession();await trackAnalyticsEvent('page_view',{path:location.pathname,metadata:{referrer:document.referrer||''}});startAnalyticsHeartbeat();}
+async function trackAnalyticsEvent(eventType,details={}){if(!analyticsReady||!window.marketSupabase)return;try{await window.marketSupabase.from('store_analytics_events').insert([{session_id:analyticsSessionId,device_id:analyticsDeviceId,event_type:eventType,product_id:details.product_id?String(details.product_id):null,product_name:details.product_name||null,page_path:details.path||location.pathname,metadata:details.metadata||{}}]);}catch(_){} }
+async function touchAnalyticsSession(){if(!analyticsReady||!window.marketSupabase)return;try{await window.marketSupabase.from('store_visitor_sessions').upsert([{session_id:analyticsSessionId,device_id:analyticsDeviceId,landing_path:location.pathname,last_seen_at:new Date().toISOString()}],{onConflict:'session_id'});}catch(_){}}
+function startAnalyticsHeartbeat(){touchAnalyticsSession();setInterval(touchAnalyticsSession,30000);}
+
         async function loadStoreData() {
             const supabaseClient = window.marketSupabase;
             if (!supabaseClient) {
@@ -1010,6 +1022,7 @@ products = shuffleArray(products);
         document.addEventListener('DOMContentLoaded', async () => {
 
     loadCart();
+    initAnalytics();
 
     // إظهار Skeleton أثناء تحميل البيانات
     renderProductSkeletons(24);
@@ -1767,6 +1780,7 @@ function openProductDetails(productId) {
     }
 
     currentProductDetailsId = String(product.id);
+    trackAnalyticsEvent('product_view',{product_id:product.id,product_name:product.name});
     const weights = product.weights || [];
 
 const weightBox =
@@ -2306,6 +2320,7 @@ const selectedPrice =
     saveCart();
     renderProducts();
     updateCartUI();
+    trackAnalyticsEvent('add_to_cart',{product_id:product.id,product_name:product.name});
 
     showAddToCartNotification(product.name);
 }
@@ -2421,6 +2436,7 @@ document.getElementById('cartDeliveryFee').innerText = `${formatPrice(STORE_CONF
             }
             toggleCartDrawer();
             const modal = document.getElementById('checkoutModal');
+            trackAnalyticsEvent('checkout_open',{metadata:{cart_items:cart.length}});
             modal.classList.remove('hidden');
             setTimeout(() => {
                 document.getElementById('checkoutModalContent').classList.remove('scale-95');
@@ -2533,6 +2549,7 @@ function submitOrder(e) {
     updateCartUI();
     renderProducts();
     closeCheckoutModal();
+    trackAnalyticsEvent('order_submitted',{metadata:{order_number:orderNumber}});
 
     window.open(encodedURL, '_blank');
 
@@ -2717,6 +2734,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 throw error;
             }
+
+            trackAnalyticsEvent('suggestion_submitted',{product_name:productName});
 
             // تفريغ الفورم
             productSuggestionForm.reset();
