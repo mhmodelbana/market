@@ -119,6 +119,11 @@
             transform: translateY(-1px);
         }
 
+        .footer-settings-card { position: relative; overflow: hidden; }
+        .footer-settings-card::before { content:''; position:absolute; inset:0 0 auto 0; height:3px; background:linear-gradient(90deg,#ffc107,#ff9800,#f97316); }
+        #admin-section-settings input, #admin-section-settings textarea { transition:border-color .18s ease, box-shadow .18s ease, transform .18s ease; }
+        #admin-section-settings input:focus, #admin-section-settings textarea:focus { transform:translateY(-1px); }
+
         @media (max-width: 767px) {
             #admin-section-products .products-toolbar {
                 grid-template-columns: 1fr;
@@ -332,6 +337,31 @@
                         </button>
                     </div>
                 </form>
+            </div>
+
+            <div class="admin-card p-6 mb-8 footer-settings-card">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+                    <div>
+                        <h3 class="text-lg font-black text-slate-900 flex items-center gap-2"><i class="fa-solid fa-window-maximize text-brand-600"></i>إعدادات الفوتر</h3>
+                        <p class="text-xs text-slate-500 mt-1">تحكم في معلومات الفوتر وروابط التواصل وحقوق النشر الظاهرة في المتجر.</p>
+                    </div>
+                    <span class="px-3 py-1.5 rounded-full bg-brand-50 text-brand-700 text-[11px] font-black">واجهة المتجر</span>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="md:col-span-2"><label class="block text-xs font-bold text-slate-700 mb-1">وصف الفوتر</label><textarea id="footerDescription" rows="3" maxlength="400" class="w-full px-3 py-3 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-brand-500 resize-y" placeholder="مثال: كل احتياجات بيتك عندنا، بجودة وأسعار مناسبة وخدمة توصيل سريعة."></textarea></div>
+                    <div><label class="block text-xs font-bold text-slate-700 mb-1">العنوان</label><input type="text" id="footerAddress" maxlength="180" class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-brand-500" placeholder="مثال: المنصورة - مصر"></div>
+                    <div><label class="block text-xs font-bold text-slate-700 mb-1">رقم الهاتف</label><input type="tel" id="footerPhone" maxlength="40" class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-brand-500" placeholder="مثال: 01000000000"></div>
+                    <div><label class="block text-xs font-bold text-slate-700 mb-1">واتساب الفوتر</label><input type="tel" id="footerWhatsapp" maxlength="40" class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-brand-500" placeholder="مثال: 201144191571"></div>
+                    <div><label class="block text-xs font-bold text-slate-700 mb-1">رابط فيسبوك</label><input type="url" id="footerFacebook" maxlength="300" class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-brand-500" placeholder="https://facebook.com/..."></div>
+                    <div><label class="block text-xs font-bold text-slate-700 mb-1">رابط إنستجرام</label><input type="url" id="footerInstagram" maxlength="300" class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-brand-500" placeholder="https://instagram.com/..."></div>
+                    <div><label class="block text-xs font-bold text-slate-700 mb-1">رابط تيك توك</label><input type="url" id="footerTiktok" maxlength="300" class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-brand-500" placeholder="https://tiktok.com/@..."></div>
+                    <div class="md:col-span-2"><label class="block text-xs font-bold text-slate-700 mb-1">نص حقوق النشر</label><input type="text" id="footerCopyright" maxlength="220" class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-brand-500" placeholder="مثال: © 2026 سوبر ماركت حماصة. جميع الحقوق محفوظة."></div>
+                </div>
+                <div class="mt-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-2xl bg-slate-50 border border-slate-200">
+                    <div><div class="text-sm font-black text-slate-800">إظهار الفوتر في المتجر</div><div class="text-[11px] text-slate-500 mt-1">عند إيقافه يظل المحتوى محفوظًا بدون عرضه في الواجهة.</div></div>
+                    <label class="relative inline-flex items-center cursor-pointer shrink-0"><input type="checkbox" id="footerEnabled" class="sr-only peer" checked><div class="w-11 h-6 bg-slate-300 rounded-full peer-checked:bg-brand-600 transition-all"></div><div class="absolute right-0.5 top-0.5 bg-white border border-slate-300 rounded-full h-5 w-5 transition-all peer-checked:-translate-x-5"></div></label>
+                </div>
+                <div class="mt-5 flex justify-end"><button type="button" id="footerSettingsSaveBtn" onclick="saveFooterSettings()" class="w-full sm:w-auto bg-brand-600 hover:bg-brand-700 text-white py-3 px-7 rounded-xl font-black text-xs shadow-md transition-all"><i class="fa-solid fa-save ml-1"></i> حفظ إعدادات الفوتر</button></div>
             </div>
 </section>
 <!-- Store Hours Management -->
@@ -950,7 +980,8 @@ let productSuggestions = [];
     const DEFAULT_STORE_SETTINGS = {
         name: "سوبر ماركت حماصه",
         whatsapp: "201144191571",
-        deliveryFee: 20
+        deliveryFee: 20,
+        footerDescription: '', footerAddress: '', footerPhone: '', footerWhatsapp: '', footerFacebook: '', footerInstagram: '', footerTiktok: '', footerCopyright: '', footerEnabled: true
     };
 
     const DEFAULT_CATEGORIES = [
@@ -1588,6 +1619,15 @@ renderAdminUI();
                 deliveryFee: Number(
                     settingsData.delivery_fee || 0
                 ),
+                footerDescription: settingsData.footer_description || '',
+                footerAddress: settingsData.footer_address || '',
+                footerPhone: settingsData.footer_phone || '',
+                footerWhatsapp: settingsData.footer_whatsapp || '',
+                footerFacebook: settingsData.footer_facebook || '',
+                footerInstagram: settingsData.footer_instagram || '',
+                footerTiktok: settingsData.footer_tiktok || '',
+                footerCopyright: settingsData.footer_copyright || '',
+                footerEnabled: settingsData.footer_enabled !== false,
                 updated_at: settingsData.updated_at
             };
 
@@ -1652,6 +1692,11 @@ renderAdminUI();
 
         document.getElementById('storeDeliveryFee').value =
             storeSettings.deliveryFee ?? 0;
+
+        const footerFields = ['footerDescription','footerAddress','footerPhone','footerWhatsapp','footerFacebook','footerInstagram','footerTiktok','footerCopyright'];
+        footerFields.forEach(id => { const el = document.getElementById(id); if (el) el.value = storeSettings[id] || ''; });
+        const footerEnabled = document.getElementById('footerEnabled');
+        if (footerEnabled) footerEnabled.checked = storeSettings.footerEnabled !== false;
     }
 
     async function handleStoreSettings(e) {
@@ -1710,7 +1755,16 @@ renderAdminUI();
                     id: 1,
                     name,
                     whatsapp,
-                    delivery_fee: deliveryFee
+                    delivery_fee: deliveryFee,
+                    footer_description: (document.getElementById('footerDescription')?.value || '').trim(),
+                    footer_address: (document.getElementById('footerAddress')?.value || '').trim(),
+                    footer_phone: (document.getElementById('footerPhone')?.value || '').trim(),
+                    footer_whatsapp: (document.getElementById('footerWhatsapp')?.value || '').trim(),
+                    footer_facebook: (document.getElementById('footerFacebook')?.value || '').trim(),
+                    footer_instagram: (document.getElementById('footerInstagram')?.value || '').trim(),
+                    footer_tiktok: (document.getElementById('footerTiktok')?.value || '').trim(),
+                    footer_copyright: (document.getElementById('footerCopyright')?.value || '').trim(),
+                    footer_enabled: document.getElementById('footerEnabled')?.checked !== false
                 }, {
                     onConflict: 'id'
                 })
@@ -1726,6 +1780,15 @@ renderAdminUI();
                 name: data.name,
                 whatsapp: data.whatsapp,
                 deliveryFee: Number(data.delivery_fee || 0),
+                footerDescription: data.footer_description || '',
+                footerAddress: data.footer_address || '',
+                footerPhone: data.footer_phone || '',
+                footerWhatsapp: data.footer_whatsapp || '',
+                footerFacebook: data.footer_facebook || '',
+                footerInstagram: data.footer_instagram || '',
+                footerTiktok: data.footer_tiktok || '',
+                footerCopyright: data.footer_copyright || '',
+                footerEnabled: data.footer_enabled !== false,
                 updated_at: data.updated_at
             };
 
@@ -1750,6 +1813,38 @@ renderAdminUI();
             );
         }
     }
+// =========================================================
+// FOOTER SETTINGS
+// =========================================================
+
+async function saveFooterSettings() {
+    const btn = document.getElementById('footerSettingsSaveBtn');
+    if (btn) { btn.disabled = true; btn.classList.add('opacity-70','cursor-not-allowed'); btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin ml-1"></i> جاري الحفظ...'; }
+    try {
+        const payload = {
+            id: 1,
+            footer_description: (document.getElementById('footerDescription')?.value || '').trim(),
+            footer_address: (document.getElementById('footerAddress')?.value || '').trim(),
+            footer_phone: (document.getElementById('footerPhone')?.value || '').trim(),
+            footer_whatsapp: (document.getElementById('footerWhatsapp')?.value || '').trim(),
+            footer_facebook: (document.getElementById('footerFacebook')?.value || '').trim(),
+            footer_instagram: (document.getElementById('footerInstagram')?.value || '').trim(),
+            footer_tiktok: (document.getElementById('footerTiktok')?.value || '').trim(),
+            footer_copyright: (document.getElementById('footerCopyright')?.value || '').trim(),
+            footer_enabled: document.getElementById('footerEnabled')?.checked !== false
+        };
+        const { data, error } = await marketSupabase.from('store_settings').upsert(payload, { onConflict: 'id' }).select().single();
+        if (error) throw error;
+        storeSettings = { ...storeSettings, footerDescription: data.footer_description || '', footerAddress: data.footer_address || '', footerPhone: data.footer_phone || '', footerWhatsapp: data.footer_whatsapp || '', footerFacebook: data.footer_facebook || '', footerInstagram: data.footer_instagram || '', footerTiktok: data.footer_tiktok || '', footerCopyright: data.footer_copyright || '', footerEnabled: data.footer_enabled !== false, updated_at: data.updated_at };
+        showAlert('تم الحفظ','تم حفظ إعدادات الفوتر بنجاح','fa-save','bg-brand-100 text-brand-600');
+    } catch (error) {
+        console.error(error);
+        showAlert('خطأ في الحفظ', error.message || 'تعذر حفظ إعدادات الفوتر','fa-xmark','bg-red-100 text-red-600');
+    } finally {
+        if (btn) { btn.disabled=false; btn.classList.remove('opacity-70','cursor-not-allowed'); btn.innerHTML='<i class="fa-solid fa-save ml-1"></i> حفظ إعدادات الفوتر'; }
+    }
+}
+
 // =========================================================
 // STORE HOURS
 // =========================================================
@@ -4584,7 +4679,7 @@ html{scroll-behavior:smooth}body{overflow-x:hidden}
    const m=modal('hmProductModal','إدارة المنتج','إضافة منتج أو تعديل البيانات بسهولة','fa-box');const body=$('hmProductModal-body');if(!body.contains(wrap))body.appendChild(wrap);
    wrap.style.display='';
    let bar=$('hmProductBar');if(!bar){bar=document.createElement('div');bar.id='hmProductBar';bar.className='hamasa-enhanced-toolbar';bar.innerHTML=`<div class="hamasa-toolbar-right"><div><div style="font-size:15px;font-weight:900;color:#0f172a">إدارة المنتجات</div><div style="font-size:10px;color:#94a3b8;margin-top:3px">الفورم يفتح عند الإضافة أو التعديل لتبقى الصفحة مرتبة</div></div></div><div class="hamasa-toolbar-left"><button type="button" class="hamasa-primary" id="hmAddProduct"><i class="fa-solid fa-plus"></i> إضافة منتج</button></div>`;(sec.querySelector('.products-list-card')||sec.querySelector('#adminProductsList')?.parentElement)?.insertAdjacentElement('beforebegin',bar);$('hmAddProduct').onclick=()=>{try{window.cancelProductEdit?.()}catch(e){} f.reset();open('hmProductModal');}};
-   
+   if(!body.querySelector('.hm-modal-hint')){const h=document.createElement('div');h.className='hm-modal-hint';h.innerHTML='<i class="fa-solid fa-circle-info ml-1"></i> نفس الحقول ونفس عملية الحفظ الموجودة في الكود الحالي؛ الإضافة هنا فقط لتحسين تجربة الاستخدام.';body.appendChild(h)}
  }
  function setupCategories(){
    const fc=$('categoryFormContainer'),sec=$('admin-section-categories'),list=$('categoriesList');if(!fc||!sec||!list)return;
