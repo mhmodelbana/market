@@ -946,9 +946,6 @@ function startAnalyticsHeartbeat(){touchAnalyticsSession();setInterval(touchAnal
                         footerTiktok: settingsData.footer_tiktok || '',
                         footerManagementText: settingsData.footer_management_text || '',
                         footerManagementSubtext: settingsData.footer_management_subtext || '',
-                        footerManagementSubtextSize: Number(settingsData.footer_management_subtext_size ?? 14),
-                        footerManagementSubtextWeight: Number(settingsData.footer_management_subtext_weight ?? 400),
-                        footerManagementSubtextColor: settingsData.footer_management_subtext_color || '#94a3b8',
                         footerDesignText: settingsData.footer_design_text || '',
                         footerDesignerName: settingsData.footer_designer_name || '',
                         footerCopyright: settingsData.footer_copyright || '',
@@ -1081,12 +1078,6 @@ products = shuffleArray(products);
             setFooterText('address', STORE_CONFIG.footerAddress);
             setFooterText('managementText', STORE_CONFIG.footerManagementText);
             setFooterText('managementSubtext', STORE_CONFIG.footerManagementSubtext);
-            const managementSubtextEl = footer.querySelector('[data-footer="managementSubtext"]');
-            if (managementSubtextEl) {
-                managementSubtextEl.style.fontSize = `${Number(STORE_CONFIG.footerManagementSubtextSize || 14)}px`;
-                managementSubtextEl.style.fontWeight = String(STORE_CONFIG.footerManagementSubtextWeight || 400);
-                managementSubtextEl.style.color = STORE_CONFIG.footerManagementSubtextColor || '#94a3b8';
-            }
             setFooterText('designText', STORE_CONFIG.footerDesignText);
             setFooterText('designerName', STORE_CONFIG.footerDesignerName);
             setFooterText('copyright', STORE_CONFIG.footerCopyright);
@@ -2969,7 +2960,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <div class="flex flex-col gap-3">
                     <h4 class="font-bold text-brand-400">الإدارة</h4>
                     <p class="text-sm text-slate-300" data-footer="managementText"></p>
-                    <p class="text-sm text-yellow-400" data-footer="managementSubtext"></p>
+                    <p class="text-sm text-slate-400" data-footer="managementSubtext"></p>
                 </div>
 
                 <div class="flex flex-col gap-3">
