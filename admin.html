@@ -119,11 +119,6 @@
             transform: translateY(-1px);
         }
 
-        .footer-settings-card { position: relative; overflow: hidden; }
-        .footer-settings-card::before { content:''; position:absolute; inset:0 0 auto 0; height:3px; background:linear-gradient(90deg,#ffc107,#ff9800,#f97316); }
-        #admin-section-settings input, #admin-section-settings textarea { transition:border-color .18s ease, box-shadow .18s ease, transform .18s ease; }
-        #admin-section-settings input:focus, #admin-section-settings textarea:focus { transform:translateY(-1px); }
-
         @media (max-width: 767px) {
             #admin-section-products .products-toolbar {
                 grid-template-columns: 1fr;
@@ -252,7 +247,11 @@
         <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             <!-- Stats Cards -->
             <section id="admin-section-dashboard" class="admin-section ">
-<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+<div class="flex items-center justify-between gap-3 flex-wrap mb-4">
+                <div><h2 class="text-xl font-black text-slate-900">إحصائيات الزوار</h2><p class="text-xs text-slate-500 mt-1">الدخول، الخروج، الأجهزة، والتفاعل مع المتجر</p></div>
+                <div class="flex items-center gap-2"><select id="analyticsPeriod" onchange="loadAnalytics()" class="px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold"><option value="1">اليوم</option><option value="7" selected>آخر 7 أيام</option><option value="30">آخر 30 يوم</option></select><button type="button" onclick="loadAnalytics()" class="px-3 py-2 rounded-xl bg-slate-900 text-white text-xs font-bold hover:bg-slate-800"><i class="fa-solid fa-rotate ml-1"></i> تحديث</button></div>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
                 <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
                     <div class="flex items-center justify-between">
                         <div>
@@ -298,6 +297,22 @@
                     </div>
                 </div>
             </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+                <div class="bg-white rounded-2xl p-5 shadow-sm border border-emerald-100"><div class="flex items-center justify-between"><div><p class="text-xs text-slate-500 font-bold">الزيارات / الجلسات</p><h3 id="analyticsSessions" class="text-2xl font-black text-slate-900 mt-1">0</h3></div><div class="w-11 h-11 bg-emerald-100 text-emerald-600 rounded-xl flex items-center justify-center"><i class="fa-solid fa-door-open"></i></div></div></div>
+                <div class="bg-white rounded-2xl p-5 shadow-sm border border-sky-100"><div class="flex items-center justify-between"><div><p class="text-xs text-slate-500 font-bold">أجهزة / زوار مميزين</p><h3 id="analyticsDevices" class="text-2xl font-black text-slate-900 mt-1">0</h3></div><div class="w-11 h-11 bg-sky-100 text-sky-600 rounded-xl flex items-center justify-center"><i class="fa-solid fa-mobile-screen-button"></i></div></div></div>
+                <div class="bg-white rounded-2xl p-5 shadow-sm border border-amber-100"><div class="flex items-center justify-between"><div><p class="text-xs text-slate-500 font-bold">موجودين الآن</p><h3 id="analyticsActive" class="text-2xl font-black text-slate-900 mt-1">0</h3></div><div class="w-11 h-11 bg-amber-100 text-amber-600 rounded-xl flex items-center justify-center"><i class="fa-solid fa-users"></i></div></div></div>
+                <div class="bg-white rounded-2xl p-5 shadow-sm border border-violet-100"><div class="flex items-center justify-between"><div><p class="text-xs text-slate-500 font-bold">خرجوا / جلسات منتهية</p><h3 id="analyticsExited" class="text-2xl font-black text-slate-900 mt-1">0</h3></div><div class="w-11 h-11 bg-violet-100 text-violet-600 rounded-xl flex items-center justify-center"><i class="fa-solid fa-door-closed"></i></div></div></div>
+            </div>
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-8">
+                <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200"><p class="text-xs text-slate-500 font-bold">تصفح المنتجات</p><h3 id="analyticsProductViews" class="text-2xl font-black text-slate-900 mt-1">0</h3></div>
+                <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200"><p class="text-xs text-slate-500 font-bold">إضافات للسلة</p><h3 id="analyticsCartAdds" class="text-2xl font-black text-slate-900 mt-1">0</h3></div>
+                <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200"><p class="text-xs text-slate-500 font-bold">تجارب الشراء والطلبات</p><h3 id="analyticsCheckout" class="text-2xl font-black text-slate-900 mt-1">0</h3></div>
+            </div>
+            <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 mb-8">
+                <div class="flex items-center justify-between gap-3 mb-4"><div><h3 class="text-lg font-black text-slate-900">الأجهزة التي دخلت المتجر</h3><p class="text-xs text-slate-500 mt-1">معرّف غير شخصي محفوظ في نفس المتصفح لمعرفة الزيارات المتكررة.</p></div><span id="analyticsPeriodLabel" class="text-xs font-bold text-slate-500">آخر 7 أيام</span></div>
+                <div id="analyticsDevicesList" class="overflow-x-auto"><div class="py-8 text-center text-sm text-slate-400">جاري تحميل الإحصائيات...</div></div>
+            </div>
 </section>
 
             <!-- Store Settings -->
@@ -337,39 +352,6 @@
                         </button>
                     </div>
                 </form>
-            </div>
-
-            <div class="admin-card p-6 mb-8 footer-settings-card">
-                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-                    <div>
-                        <h3 class="text-lg font-black text-slate-900 flex items-center gap-2"><i class="fa-solid fa-window-maximize text-brand-600"></i>إعدادات الفوتر</h3>
-                        <p class="text-xs text-slate-500 mt-1">تحكم في معلومات الفوتر وروابط التواصل وحقوق النشر الظاهرة في المتجر.</p>
-                    </div>
-                    <span class="px-3 py-1.5 rounded-full bg-brand-50 text-brand-700 text-[11px] font-black">واجهة المتجر</span>
-                </div>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div class="md:col-span-2"><label class="block text-xs font-bold text-slate-700 mb-1">وصف الفوتر</label><textarea id="footerDescription" rows="3" maxlength="400" class="w-full px-3 py-3 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-brand-500 resize-y" placeholder="مثال: كل احتياجات بيتك عندنا، بجودة وأسعار مناسبة وخدمة توصيل سريعة."></textarea></div>
-                    <div><label class="block text-xs font-bold text-slate-700 mb-1">رابط لوجو الفوتر</label><input type="url" id="footerLogoUrl" maxlength="500" class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-brand-500" placeholder="https://..."></div>
-                    <div><label class="block text-xs font-bold text-slate-700 mb-1">اسم الفوتر</label><input type="text" id="footerBrandName" maxlength="120" class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-brand-500" placeholder="سوبر ماركت حماصة"></div>
-                    <div><label class="block text-xs font-bold text-slate-700 mb-1">الوصف المختصر</label><input type="text" id="footerBrandSubtitle" maxlength="120" class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-brand-500" placeholder="سوبر ماركت"></div>
-                    <div><label class="block text-xs font-bold text-slate-700 mb-1">الجملة التعريفية</label><input type="text" id="footerTagline" maxlength="220" class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-brand-500" placeholder="خدمة توصيل سريعة حتى باب بيتك"></div>
-                    <div><label class="block text-xs font-bold text-slate-700 mb-1">العنوان</label><input type="text" id="footerAddress" maxlength="180" class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-brand-500" placeholder="مثال: المنصورة - مصر"></div>
-                    <div><label class="block text-xs font-bold text-slate-700 mb-1">رقم الهاتف</label><input type="tel" id="footerPhone" maxlength="40" class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-brand-500" placeholder="مثال: 01000000000"></div>
-                    <div><label class="block text-xs font-bold text-slate-700 mb-1">واتساب الفوتر</label><input type="tel" id="footerWhatsapp" maxlength="40" class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-brand-500" placeholder="مثال: 201144191571"></div>
-                    <div><label class="block text-xs font-bold text-slate-700 mb-1">رابط فيسبوك</label><input type="url" id="footerFacebook" maxlength="300" class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-brand-500" placeholder="https://facebook.com/..."></div>
-                    <div><label class="block text-xs font-bold text-slate-700 mb-1">رابط إنستجرام</label><input type="url" id="footerInstagram" maxlength="300" class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-brand-500" placeholder="https://instagram.com/..."></div>
-                    <div><label class="block text-xs font-bold text-slate-700 mb-1">رابط تيك توك</label><input type="url" id="footerTiktok" maxlength="300" class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-brand-500" placeholder="https://tiktok.com/@..."></div>
-                                        <div><label class="block text-xs font-bold text-slate-700 mb-1">بيانات الإدارة</label><input type="text" id="footerManagementText" maxlength="180" class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-brand-500" placeholder="إدارة محمد عطاء"></div>
-                    <div><label class="block text-xs font-bold text-slate-700 mb-1">سطر الإدارة الإضافي</label><input type="text" id="footerManagementSubtext" maxlength="120" class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-brand-500" placeholder="(حماصة)"></div>
-                    <div><label class="block text-xs font-bold text-slate-700 mb-1">سطر التصميم</label><input type="text" id="footerDesignText" maxlength="180" class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-brand-500" placeholder="من تصميم وانشاء"></div>
-                    <div><label class="block text-xs font-bold text-slate-700 mb-1">اسم المصمم</label><input type="text" id="footerDesignerName" maxlength="180" class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold focus:outline-none focus:ring-2 focus:ring-brand-500" placeholder="م/محمود محمد البنا"></div>
-                    <div class="md:col-span-2"><label class="block text-xs font-bold text-slate-700 mb-1">نص حقوق النشر</label><input type="text" id="footerCopyright" maxlength="220" class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-brand-500" placeholder="مثال: © 2026 سوبر ماركت حماصة. جميع الحقوق محفوظة."></div>
-                </div>
-                <div class="mt-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-2xl bg-slate-50 border border-slate-200">
-                    <div><div class="text-sm font-black text-slate-800">إظهار الفوتر في المتجر</div><div class="text-[11px] text-slate-500 mt-1">عند إيقافه يظل المحتوى محفوظًا بدون عرضه في الواجهة.</div></div>
-                    <label class="relative inline-flex items-center cursor-pointer shrink-0"><input type="checkbox" id="footerEnabled" class="sr-only peer" checked><div class="w-11 h-6 bg-slate-300 rounded-full peer-checked:bg-brand-600 transition-all"></div><div class="absolute right-0.5 top-0.5 bg-white border border-slate-300 rounded-full h-5 w-5 transition-all peer-checked:-translate-x-5"></div></label>
-                </div>
-                <div class="mt-5 flex justify-end"><button type="button" id="footerSettingsSaveBtn" onclick="saveFooterSettings()" class="w-full sm:w-auto bg-brand-600 hover:bg-brand-700 text-white py-3 px-7 rounded-xl font-black text-xs shadow-md transition-all"><i class="fa-solid fa-save ml-1"></i> حفظ إعدادات الفوتر</button></div>
             </div>
 </section>
 <!-- Store Hours Management -->
@@ -988,8 +970,7 @@ let productSuggestions = [];
     const DEFAULT_STORE_SETTINGS = {
         name: "سوبر ماركت حماصه",
         whatsapp: "201144191571",
-        deliveryFee: 20,
-        footerDescription: '', footerLogoUrl: '', footerBrandName: 'سوبر ماركت حماصة', footerBrandSubtitle: 'سوبر ماركت', footerTagline: 'خدمة توصيل سريعة حتى باب بيتك', footerAddress: '', footerPhone: '', footerWhatsapp: '', footerFacebook: '', footerInstagram: '', footerTiktok: '', footerManagementText: '', footerManagementSubtext: '', footerDesignText: '', footerDesignerName: '', footerCopyright: '', footerEnabled: true
+        deliveryFee: 20
     };
 
     const DEFAULT_CATEGORIES = [
@@ -1627,23 +1608,6 @@ renderAdminUI();
                 deliveryFee: Number(
                     settingsData.delivery_fee || 0
                 ),
-                footerDescription: settingsData.footer_description || '',
-                footerLogoUrl: settingsData.footer_logo_url || '',
-                footerBrandName: settingsData.footer_brand_name || 'سوبر ماركت حماصة',
-                footerBrandSubtitle: settingsData.footer_brand_subtitle || 'سوبر ماركت',
-                footerTagline: settingsData.footer_tagline || 'خدمة توصيل سريعة حتى باب بيتك',
-                footerAddress: settingsData.footer_address || '',
-                footerPhone: settingsData.footer_phone || '',
-                footerWhatsapp: settingsData.footer_whatsapp || '',
-                footerFacebook: settingsData.footer_facebook || '',
-                footerInstagram: settingsData.footer_instagram || '',
-                footerTiktok: settingsData.footer_tiktok || '',
-                footerManagementText: settingsData.footer_management_text || '',
-                footerManagementSubtext: settingsData.footer_management_subtext || '',
-                footerDesignText: settingsData.footer_design_text || '',
-                footerDesignerName: settingsData.footer_designer_name || '',
-                footerCopyright: settingsData.footer_copyright || '',
-                footerEnabled: settingsData.footer_enabled !== false,
                 updated_at: settingsData.updated_at
             };
 
@@ -1692,6 +1656,7 @@ renderAdminUI();
         populateCategoriesSelect();
 
         updateStats();
+        loadAnalytics();
     }
 
     // =========================================================
@@ -1708,11 +1673,6 @@ renderAdminUI();
 
         document.getElementById('storeDeliveryFee').value =
             storeSettings.deliveryFee ?? 0;
-
-        const footerFields = ['footerDescription','footerLogoUrl','footerBrandName','footerBrandSubtitle','footerTagline','footerAddress','footerPhone','footerWhatsapp','footerFacebook','footerInstagram','footerTiktok','footerManagementText','footerManagementSubtext','footerDesignText','footerDesignerName','footerCopyright'];
-        footerFields.forEach(id => { const el = document.getElementById(id); if (el) el.value = storeSettings[id] || ''; });
-        const footerEnabled = document.getElementById('footerEnabled');
-        if (footerEnabled) footerEnabled.checked = storeSettings.footerEnabled !== false;
     }
 
     async function handleStoreSettings(e) {
@@ -1771,24 +1731,7 @@ renderAdminUI();
                     id: 1,
                     name,
                     whatsapp,
-                    delivery_fee: deliveryFee,
-                    footer_description: (document.getElementById('footerDescription')?.value || '').trim(),
-                    footer_logo_url: (document.getElementById('footerLogoUrl')?.value || '').trim(),
-                    footer_brand_name: (document.getElementById('footerBrandName')?.value || '').trim(),
-                    footer_brand_subtitle: (document.getElementById('footerBrandSubtitle')?.value || '').trim(),
-                    footer_tagline: (document.getElementById('footerTagline')?.value || '').trim(),
-                    footer_address: (document.getElementById('footerAddress')?.value || '').trim(),
-                    footer_phone: (document.getElementById('footerPhone')?.value || '').trim(),
-                    footer_whatsapp: (document.getElementById('footerWhatsapp')?.value || '').trim(),
-                    footer_facebook: (document.getElementById('footerFacebook')?.value || '').trim(),
-                    footer_instagram: (document.getElementById('footerInstagram')?.value || '').trim(),
-                    footer_tiktok: (document.getElementById('footerTiktok')?.value || '').trim(),
-                    footer_management_text: (document.getElementById('footerManagementText')?.value || '').trim(),
-                    footer_management_subtext: (document.getElementById('footerManagementSubtext')?.value || '').trim(),
-                    footer_design_text: (document.getElementById('footerDesignText')?.value || '').trim(),
-                    footer_designer_name: (document.getElementById('footerDesignerName')?.value || '').trim(),
-                    footer_copyright: (document.getElementById('footerCopyright')?.value || '').trim(),
-                    footer_enabled: document.getElementById('footerEnabled')?.checked !== false
+                    delivery_fee: deliveryFee
                 }, {
                     onConflict: 'id'
                 })
@@ -1804,15 +1747,6 @@ renderAdminUI();
                 name: data.name,
                 whatsapp: data.whatsapp,
                 deliveryFee: Number(data.delivery_fee || 0),
-                footerDescription: data.footer_description || '',
-                footerAddress: data.footer_address || '',
-                footerPhone: data.footer_phone || '',
-                footerWhatsapp: data.footer_whatsapp || '',
-                footerFacebook: data.footer_facebook || '',
-                footerInstagram: data.footer_instagram || '',
-                footerTiktok: data.footer_tiktok || '',
-                footerCopyright: data.footer_copyright || '',
-                footerEnabled: data.footer_enabled !== false,
                 updated_at: data.updated_at
             };
 
@@ -1837,46 +1771,6 @@ renderAdminUI();
             );
         }
     }
-// =========================================================
-// FOOTER SETTINGS
-// =========================================================
-
-async function saveFooterSettings() {
-    const btn = document.getElementById('footerSettingsSaveBtn');
-    if (btn) { btn.disabled = true; btn.classList.add('opacity-70','cursor-not-allowed'); btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin ml-1"></i> جاري الحفظ...'; }
-    try {
-        const payload = {
-            id: 1,
-            footer_description: (document.getElementById('footerDescription')?.value || '').trim(),
-            footer_logo_url: (document.getElementById('footerLogoUrl')?.value || '').trim(),
-            footer_brand_name: (document.getElementById('footerBrandName')?.value || '').trim(),
-            footer_brand_subtitle: (document.getElementById('footerBrandSubtitle')?.value || '').trim(),
-            footer_tagline: (document.getElementById('footerTagline')?.value || '').trim(),
-            footer_address: (document.getElementById('footerAddress')?.value || '').trim(),
-            footer_phone: (document.getElementById('footerPhone')?.value || '').trim(),
-            footer_whatsapp: (document.getElementById('footerWhatsapp')?.value || '').trim(),
-            footer_facebook: (document.getElementById('footerFacebook')?.value || '').trim(),
-            footer_instagram: (document.getElementById('footerInstagram')?.value || '').trim(),
-            footer_tiktok: (document.getElementById('footerTiktok')?.value || '').trim(),
-            footer_management_text: (document.getElementById('footerManagementText')?.value || '').trim(),
-            footer_management_subtext: (document.getElementById('footerManagementSubtext')?.value || '').trim(),
-            footer_design_text: (document.getElementById('footerDesignText')?.value || '').trim(),
-            footer_designer_name: (document.getElementById('footerDesignerName')?.value || '').trim(),
-            footer_copyright: (document.getElementById('footerCopyright')?.value || '').trim(),
-            footer_enabled: document.getElementById('footerEnabled')?.checked !== false
-        };
-        const { data, error } = await marketSupabase.from('store_settings').upsert(payload, { onConflict: 'id' }).select().single();
-        if (error) throw error;
-        storeSettings = { ...storeSettings, footerDescription: data.footer_description || '', footerLogoUrl: data.footer_logo_url || '', footerBrandName: data.footer_brand_name || '', footerBrandSubtitle: data.footer_brand_subtitle || '', footerTagline: data.footer_tagline || '', footerAddress: data.footer_address || '', footerPhone: data.footer_phone || '', footerWhatsapp: data.footer_whatsapp || '', footerFacebook: data.footer_facebook || '', footerInstagram: data.footer_instagram || '', footerTiktok: data.footer_tiktok || '', footerManagementText: data.footer_management_text || '', footerManagementSubtext: data.footer_management_subtext || '', footerDesignText: data.footer_design_text || '', footerDesignerName: data.footer_designer_name || '', footerCopyright: data.footer_copyright || '', footerEnabled: data.footer_enabled !== false, updated_at: data.updated_at };
-        showAlert('تم الحفظ','تم حفظ إعدادات الفوتر بنجاح','fa-save','bg-brand-100 text-brand-600');
-    } catch (error) {
-        console.error(error);
-        showAlert('خطأ في الحفظ', error.message || 'تعذر حفظ إعدادات الفوتر','fa-xmark','bg-red-100 text-red-600');
-    } finally {
-        if (btn) { btn.disabled=false; btn.classList.remove('opacity-70','cursor-not-allowed'); btn.innerHTML='<i class="fa-solid fa-save ml-1"></i> حفظ إعدادات الفوتر'; }
-    }
-}
-
 // =========================================================
 // STORE HOURS
 // =========================================================
@@ -3243,6 +3137,27 @@ async function deleteProductSuggestion(id) {
                 select.value = product.category;
             }
         }
+    }
+
+    // =========================================================
+    // VISITOR ANALYTICS
+    // =========================================================
+    const ANALYTICS_PERIOD_LABELS={1:'اليوم',7:'آخر 7 أيام',30:'آخر 30 يوم'};
+    function formatAnalyticsNumber(value){return Number(value||0).toLocaleString('ar-EG');}
+    function analyticsDeviceLabel(deviceId){const raw=String(deviceId||'');return raw?`جهاز ${raw.slice(-8).toUpperCase()}`:'جهاز غير معروف';}
+    async function loadAnalytics(){
+      const period=Number(document.getElementById('analyticsPeriod')?.value||7), label=document.getElementById('analyticsPeriodLabel'), list=document.getElementById('analyticsDevicesList');
+      if(label)label.textContent=ANALYTICS_PERIOD_LABELS[period]||`آخر ${period} يوم`;
+      if(list)list.innerHTML='<div class="py-8 text-center text-sm text-slate-400"><i class="fa-solid fa-spinner fa-spin ml-1"></i> جاري تحميل الإحصائيات...</div>';
+      try{
+        const {data,error}=await marketSupabase.rpc('get_store_analytics_summary',{p_days:period}); if(error)throw error; const stats=data||{};
+        const set=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=formatAnalyticsNumber(v);};
+        set('analyticsSessions',stats.total_sessions);set('analyticsDevices',stats.unique_devices);set('analyticsActive',stats.active_sessions);set('analyticsExited',stats.exited_sessions);set('analyticsProductViews',stats.product_views);set('analyticsCartAdds',stats.add_to_cart);set('analyticsCheckout',Number(stats.checkout_open||0)+Number(stats.order_submitted||0));
+        const devices=Array.isArray(stats.recent_devices)?stats.recent_devices:[];
+        if(!list)return;
+        if(!devices.length){list.innerHTML='<div class="py-8 text-center text-sm text-slate-400">مفيش زيارات مسجلة في الفترة دي لسه.</div>';return;}
+        list.innerHTML=`<table class="w-full text-xs"><thead><tr class="border-b border-slate-100 text-slate-500"><th class="text-right py-3 px-2">الجهاز</th><th class="text-right py-3 px-2">الزيارات</th><th class="text-right py-3 px-2">آخر ظهور</th><th class="text-right py-3 px-2">الحالة</th></tr></thead><tbody>${devices.map(d=>`<tr class="border-b border-slate-50 last:border-0"><td class="py-3 px-2 font-bold text-slate-800">${escapeHTML(analyticsDeviceLabel(d.device_id))}</td><td class="py-3 px-2 text-slate-600">${formatAnalyticsNumber(d.visits)}</td><td class="py-3 px-2 text-slate-500">${escapeHTML(formatDate(d.last_seen_at||''))}</td><td class="py-3 px-2">${d.active?'<span class="inline-flex items-center gap-1 text-emerald-600 font-bold"><span class="w-2 h-2 rounded-full bg-emerald-500"></span>نشط الآن</span>':'<span class="text-slate-400 font-bold">خرج</span>'}</td></tr>`).join('')}</tbody></table>`;
+      }catch(error){console.error('Analytics load error:',error);if(list)list.innerHTML='<div class="py-8 text-center text-sm text-red-500">إحصائيات الزوار محتاجة تطبيق SQL الخاص بالتحليلات أولاً.</div>';}
     }
 
     // =========================================================
