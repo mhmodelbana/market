@@ -341,6 +341,25 @@
                             class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-brand-500"
                             placeholder="مثال: 20">
                     </div>
+
+                    <div class="lg:col-span-3 border-t pt-4 mt-2"><h4 class="font-black text-sm text-slate-800 mb-3">إعدادات الفوتر</h4><div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+<div><label class="block text-xs font-bold text-slate-700 mb-1">وصف الفوتر</label><textarea id="footer_description" rows="3" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs"></textarea></div>
+<div><label class="block text-xs font-bold text-slate-700 mb-1">العنوان</label><input type="text" id="footer_address" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs"></div>
+<div><label class="block text-xs font-bold text-slate-700 mb-1">رقم الهاتف</label><input type="text" id="footer_phone" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs"></div>
+<div><label class="block text-xs font-bold text-slate-700 mb-1">واتساب الفوتر</label><input type="text" id="footer_whatsapp" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs"></div>
+<div><label class="block text-xs font-bold text-slate-700 mb-1">رابط فيسبوك</label><input type="url" id="footer_facebook" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs"></div>
+<div><label class="block text-xs font-bold text-slate-700 mb-1">رابط إنستجرام</label><input type="url" id="footer_instagram" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs"></div>
+<div><label class="block text-xs font-bold text-slate-700 mb-1">رابط تيك توك</label><input type="url" id="footer_tiktok" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs"></div>
+<div><label class="block text-xs font-bold text-slate-700 mb-1">حقوق النشر</label><input type="text" id="footer_copyright" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs"></div>
+<div><label class="block text-xs font-bold text-slate-700 mb-1">رابط اللوجو</label><input type="url" id="footer_logo_url" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs"></div>
+<div><label class="block text-xs font-bold text-slate-700 mb-1">اسم العلامة بالفوتر</label><input type="text" id="footer_brand_name" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs"></div>
+<div><label class="block text-xs font-bold text-slate-700 mb-1">الوصف أسفل اسم العلامة</label><input type="text" id="footer_brand_subtitle" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs"></div>
+<div><label class="block text-xs font-bold text-slate-700 mb-1">الجملة التعريفية</label><input type="text" id="footer_tagline" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs"></div>
+<div><label class="block text-xs font-bold text-slate-700 mb-1">نص الإدارة</label><input type="text" id="footer_management_text" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs"></div>
+<div><label class="block text-xs font-bold text-slate-700 mb-1">النص الفرعي للإدارة</label><input type="text" id="footer_management_subtext" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs"></div>
+<div><label class="block text-xs font-bold text-slate-700 mb-1">نص التصميم</label><input type="text" id="footer_design_text" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs"></div>
+<div><label class="block text-xs font-bold text-slate-700 mb-1">اسم المصمم</label><input type="text" id="footer_designer_name" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs"></div>
+<div><label class="flex items-center gap-2 text-xs font-bold"><input type="checkbox" id="footer_enabled" checked> تفعيل الفوتر</label></div></div></div>
                     <div class="lg:col-span-3 pt-2">
                         <button
                             type="submit"
@@ -1608,7 +1627,24 @@ renderAdminUI();
                 deliveryFee: Number(
                     settingsData.delivery_fee || 0
                 ),
-                updated_at: settingsData.updated_at
+                updated_at: settingsData.updated_at,
+                footer_description: settingsData.footer_description || '',
+                footer_address: settingsData.footer_address || '',
+                footer_phone: settingsData.footer_phone || '',
+                footer_whatsapp: settingsData.footer_whatsapp || '',
+                footer_facebook: settingsData.footer_facebook || '',
+                footer_instagram: settingsData.footer_instagram || '',
+                footer_tiktok: settingsData.footer_tiktok || '',
+                footer_copyright: settingsData.footer_copyright || '',
+                footer_logo_url: settingsData.footer_logo_url || '',
+                footer_brand_name: settingsData.footer_brand_name || '',
+                footer_brand_subtitle: settingsData.footer_brand_subtitle || '',
+                footer_tagline: settingsData.footer_tagline || '',
+                footer_management_text: settingsData.footer_management_text || '',
+                footer_management_subtext: settingsData.footer_management_subtext || '',
+                footer_design_text: settingsData.footer_design_text || '',
+                footer_designer_name: settingsData.footer_designer_name || '',
+                footer_enabled: settingsData.footer_enabled !== false
             };
 
         } else {
@@ -1673,6 +1709,10 @@ renderAdminUI();
 
         document.getElementById('storeDeliveryFee').value =
             storeSettings.deliveryFee ?? 0;
+
+        const footerFields = ['footer_description', 'footer_address', 'footer_phone', 'footer_whatsapp', 'footer_facebook', 'footer_instagram', 'footer_tiktok', 'footer_copyright', 'footer_logo_url', 'footer_brand_name', 'footer_brand_subtitle', 'footer_tagline', 'footer_management_text', 'footer_management_subtext', 'footer_design_text', 'footer_designer_name'];
+        footerFields.forEach(key => { const el=document.getElementById(key); if(el) el.value=storeSettings[key] || ''; });
+        document.getElementById('footer_enabled').checked = storeSettings.footer_enabled !== false;
     }
 
     async function handleStoreSettings(e) {
@@ -1731,7 +1771,24 @@ renderAdminUI();
                     id: 1,
                     name,
                     whatsapp,
-                    delivery_fee: deliveryFee
+                    delivery_fee: deliveryFee,
+                    footer_description: document.getElementById('footer_description').value.trim(),
+                    footer_address: document.getElementById('footer_address').value.trim(),
+                    footer_phone: document.getElementById('footer_phone').value.trim(),
+                    footer_whatsapp: document.getElementById('footer_whatsapp').value.trim(),
+                    footer_facebook: document.getElementById('footer_facebook').value.trim(),
+                    footer_instagram: document.getElementById('footer_instagram').value.trim(),
+                    footer_tiktok: document.getElementById('footer_tiktok').value.trim(),
+                    footer_copyright: document.getElementById('footer_copyright').value.trim(),
+                    footer_logo_url: document.getElementById('footer_logo_url').value.trim(),
+                    footer_brand_name: document.getElementById('footer_brand_name').value.trim(),
+                    footer_brand_subtitle: document.getElementById('footer_brand_subtitle').value.trim(),
+                    footer_tagline: document.getElementById('footer_tagline').value.trim(),
+                    footer_management_text: document.getElementById('footer_management_text').value.trim(),
+                    footer_management_subtext: document.getElementById('footer_management_subtext').value.trim(),
+                    footer_design_text: document.getElementById('footer_design_text').value.trim(),
+                    footer_designer_name: document.getElementById('footer_designer_name').value.trim(),
+                    footer_enabled: document.getElementById('footer_enabled').checked
                 }, {
                     onConflict: 'id'
                 })
@@ -1747,7 +1804,24 @@ renderAdminUI();
                 name: data.name,
                 whatsapp: data.whatsapp,
                 deliveryFee: Number(data.delivery_fee || 0),
-                updated_at: data.updated_at
+                updated_at: data.updated_at,
+                footer_description: data.footer_description || '',
+                footer_address: data.footer_address || '',
+                footer_phone: data.footer_phone || '',
+                footer_whatsapp: data.footer_whatsapp || '',
+                footer_facebook: data.footer_facebook || '',
+                footer_instagram: data.footer_instagram || '',
+                footer_tiktok: data.footer_tiktok || '',
+                footer_copyright: data.footer_copyright || '',
+                footer_logo_url: data.footer_logo_url || '',
+                footer_brand_name: data.footer_brand_name || '',
+                footer_brand_subtitle: data.footer_brand_subtitle || '',
+                footer_tagline: data.footer_tagline || '',
+                footer_management_text: data.footer_management_text || '',
+                footer_management_subtext: data.footer_management_subtext || '',
+                footer_design_text: data.footer_design_text || '',
+                footer_designer_name: data.footer_designer_name || '',
+                footer_enabled: data.footer_enabled !== false
             };
 
             updateStats();
