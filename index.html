@@ -1332,7 +1332,7 @@ renderPagination(filtered.length);
                 `;
             }).join('');
         }
-        function renderPagination(totalItems) {
+       function renderPagination(totalItems) {
     const container = document.getElementById('pagination');
     if (!container) return;
 
@@ -1345,41 +1345,76 @@ renderPagination(filtered.length);
 
     let buttons = '';
 
+    // السابق
     buttons += `
         <button
             onclick="changePage(${currentPage - 1})"
             ${currentPage === 1 ? 'disabled' : ''}
-            class="px-4 py-2 rounded-xl border font-bold text-sm
+            class="px-4 py-2 rounded-xl border font-bold text-sm transition-all
             ${currentPage === 1
-                ? 'bg-slate-100 text-slate-400'
-                : 'bg-white text-slate-700 hover:bg-brand-50'}"
+                ? 'bg-slate-100 text-slate-400 border-slate-200'
+                : 'bg-white text-slate-700 border-slate-200 hover:bg-brand-50 hover:border-brand-300'}"
         >
             السابق
         </button>
     `;
 
-    for (let page = 1; page <= totalPages; page++) {
+    // عدد الأرقام الظاهرة
+    const visiblePages = 5;
+
+    let startPage;
+
+    /*
+        أول الصفحات:
+        1 2 3 4 5
+
+        عند الوصول للصفحة 6:
+        2 3 4 5 6
+
+        الصفحة 7:
+        3 4 5 6 7
+    */
+    if (currentPage <= visiblePages) {
+        startPage = 1;
+    } else {
+        startPage = currentPage - (visiblePages - 1);
+    }
+
+    // لو قربنا من آخر الصفحات
+    if (startPage + visiblePages - 1 > totalPages) {
+        startPage = Math.max(1, totalPages - visiblePages + 1);
+    }
+
+    const endPage = Math.min(
+        totalPages,
+        startPage + visiblePages - 1
+    );
+
+    // أرقام الصفحات
+    for (let page = startPage; page <= endPage; page++) {
+
         buttons += `
             <button
                 onclick="changePage(${page})"
-                class="min-w-10 px-3 py-2 rounded-xl border font-bold text-sm
+                class="min-w-10 h-10 px-3 rounded-xl border font-bold text-sm transition-all
                 ${page === currentPage
-                    ? 'bg-brand-600 text-white border-brand-600'
-                    : 'bg-white text-slate-700 hover:bg-brand-50 border-slate-200'}"
+                    ? 'bg-brand-600 text-white border-brand-600 shadow-lg shadow-brand-600/20 scale-105'
+                    : 'bg-white text-slate-700 border-slate-200 hover:bg-brand-50 hover:border-brand-300'}"
             >
                 ${page}
             </button>
         `;
     }
 
+    // التالي
     buttons += `
         <button
             onclick="changePage(${currentPage + 1})"
             ${currentPage === totalPages ? 'disabled' : ''}
-            class="px-4 py-2 rounded-xl border font-bold text-sm
+            class="px-4 py-2 rounded-xl border font-bold text-sm transition-all
             ${currentPage === totalPages
-                ? 'bg-slate-100 text-slate-400'
-                : 'bg-white text-slate-700 hover:bg-brand-50'}"
+                ? 'bg-slate-100 text-slate-400 border-slate-200'
+                : 'bg-white text-slate-700 border-slate-200 hover:bg-brand-50 hover:border-brand-300'}"
         >
             التالي
         </button>
@@ -1387,7 +1422,6 @@ renderPagination(filtered.length);
 
     container.innerHTML = buttons;
 }
-
 function changePage(page) {
     const totalItems = products.filter(p => {
         const matchesCat =
