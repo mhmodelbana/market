@@ -287,7 +287,9 @@
         <div id="productsGrid" class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
             <!-- Rendered via JS -->
         </div>
-
+                          <!-- Pagination -->
+<div id="pagination" class="flex flex-wrap justify-center items-center gap-2 mt-8"></div>
+        
         <!-- Empty State -->
         <div id="emptyState" class="hidden text-center py-20 bg-white rounded-3xl border border-dashed border-slate-300 shadow-sm mt-6">
             <div class="w-20 h-20 bg-slate-100 text-slate-400 rounded-full flex items-center justify-center mx-auto mb-4 text-3xl">
@@ -810,6 +812,8 @@ let cart = [];
 let currentCategory = 'all';
 let searchQuery = '';
 let currentSort = 'default';
+        let currentPage = 1;
+const productsPerPage = 12;
 
         function normalizeCart(items = []) {
             const map = new Map();
@@ -976,6 +980,7 @@ let currentSort = 'default';
             if (catObj) {
                 document.getElementById('categoryTitle').innerText = catObj.name === 'الكل' ? 'جميع المنتجات' : catObj.name;
             }
+            currentPage = 1;
             renderProducts();
         }
 
@@ -983,7 +988,7 @@ let currentSort = 'default';
     searchQuery = query.trim().toLowerCase();
 
     renderSearchSuggestions(query);
-
+          currentPage = 1;
     renderProducts();
 }
         function renderSearchSuggestions(query) {
@@ -1080,9 +1085,10 @@ let currentSort = 'default';
 }
         
         function changeSorting(val) {
-            currentSort = val;
-            renderProducts();
-        }
+    currentSort = val;
+    currentPage = 1;
+    renderProducts();
+}
 
         function resetFilters() {
             currentCategory = 'all';
@@ -1091,6 +1097,7 @@ let currentSort = 'default';
             document.getElementById('mobileSearchInput').value = '';
             document.getElementById('sortSelect').value = 'default';
             currentSort = 'default';
+            currentPage = 1;
             renderCategories();
             renderProducts();
         }
@@ -1126,6 +1133,17 @@ let currentSort = 'default';
             } else if (currentSort === 'name') {
                 filtered.sort((a, b) => a.name.localeCompare(b.name, 'ar'));
             }
+            const totalPages = Math.ceil(filtered.length / productsPerPage);
+
+if (currentPage > totalPages) {
+    currentPage = Math.max(1, totalPages);
+}
+
+const startIndex = (currentPage - 1) * productsPerPage;
+const paginatedProducts = filtered.slice(
+    startIndex,
+    startIndex + productsPerPage
+);
 
             if (filtered.length === 0) {
     grid.innerHTML = '';
@@ -1177,10 +1195,10 @@ let currentSort = 'default';
 
     return;
 }
-
+renderPagination(filtered.length);
             emptyState.classList.add('hidden');
 
-            grid.innerHTML = filtered.map(product => {
+           grid.innerHTML = paginatedProducts.map(product => {
                 const cartItem = cart.find(item => item.id === product.id);
                 const qty = cartItem ? cartItem.qty : 0;
 
@@ -1313,6 +1331,85 @@ let currentSort = 'default';
                 `;
             }).join('');
         }
+        function renderPagination(totalItems) {
+    const container = document.getElementById('pagination');
+    if (!container) return;
+
+    const totalPages = Math.ceil(totalItems / productsPerPage);
+
+    if (totalPages <= 1) {
+        container.innerHTML = '';
+        return;
+    }
+
+    let buttons = '';
+
+    buttons += `
+        <button
+            onclick="changePage(${currentPage - 1})"
+            ${currentPage === 1 ? 'disabled' : ''}
+            class="px-4 py-2 rounded-xl border font-bold text-sm
+            ${currentPage === 1
+                ? 'bg-slate-100 text-slate-400'
+                : 'bg-white text-slate-700 hover:bg-brand-50'}"
+        >
+            السابق
+        </button>
+    `;
+
+    for (let page = 1; page <= totalPages; page++) {
+        buttons += `
+            <button
+                onclick="changePage(${page})"
+                class="min-w-10 px-3 py-2 rounded-xl border font-bold text-sm
+                ${page === currentPage
+                    ? 'bg-brand-600 text-white border-brand-600'
+                    : 'bg-white text-slate-700 hover:bg-brand-50 border-slate-200'}"
+            >
+                ${page}
+            </button>
+        `;
+    }
+
+    buttons += `
+        <button
+            onclick="changePage(${currentPage + 1})"
+            ${currentPage === totalPages ? 'disabled' : ''}
+            class="px-4 py-2 rounded-xl border font-bold text-sm
+            ${currentPage === totalPages
+                ? 'bg-slate-100 text-slate-400'
+                : 'bg-white text-slate-700 hover:bg-brand-50'}"
+        >
+            التالي
+        </button>
+    `;
+
+    container.innerHTML = buttons;
+}
+
+function changePage(page) {
+    const totalItems = products.filter(p => {
+        const matchesCat =
+            currentCategory === 'all' || p.category === currentCategory;
+
+        const matchesSearch =
+            p.name.toLowerCase().includes(searchQuery);
+
+        return matchesCat && matchesSearch;
+    }).length;
+
+    const totalPages = Math.ceil(totalItems / productsPerPage);
+
+    if (page < 1 || page > totalPages) return;
+
+    currentPage = page;
+    renderProducts();
+
+    document.getElementById('catalogSection').scrollIntoView({
+        behavior: 'smooth',
+        block: 'start'
+    });
+}
         /* ==========================================
    PRODUCT DETAILS
 ========================================== */
