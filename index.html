@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>سوبر ماركت حماصة | كل احتياجات بيتك عندنا</title>
+    <title>المتجر | كل احتياجات بيتك عندنا</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome Icons -->
@@ -128,7 +128,7 @@
         <!-- اللوجو -->
         <img
             src="Gemini_Generated_Image_hmarnphmarnphmar.png"
-            alt="سوبر ماركت حماصة"
+            alt=""
             class="w-48 sm:w-56 mx-auto mb-8 object-contain"
         >
 
@@ -176,10 +176,9 @@
                 </div>
                 <div>
                     <h1 class="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight flex items-center gap-2 store-name">
-                        سوبر ماركت حماصة
                         <span class="text-xs bg-brand-100 text-brand-700 px-2 py-0.5 rounded-full font-bold hidden sm:inline-block">مفتوح الآن 🟢</span>
                     </h1>
-                    <p class="text-xs text-slate-500 font-medium">خدمة توصيل سريعة حتى باب بيتك</p>
+                    <p class="text-xs text-slate-500 font-medium" data-store-tagline></p>
                 </div>
             </div>
 
@@ -823,9 +822,9 @@ function checkStoreOpeningHours() {
 
     
         const DEFAULT_STORE_CONFIG = {
-            name: "سوبر ماركت حماصة",
-            whatsapp: "201144191571",
-            deliveryFee: 20
+            name: '',
+            whatsapp: '',
+            deliveryFee: 0
         };
 
         function escapeHTML(value = '') {
@@ -919,19 +918,49 @@ function shuffleArray(array) {
 
                 if (settingsData) {
                     STORE_CONFIG = {
-                        name: settingsData.name || DEFAULT_STORE_CONFIG.name,
-                        whatsapp: settingsData.whatsapp || DEFAULT_STORE_CONFIG.whatsapp,
-                        deliveryFee: Number(settingsData.delivery_fee ?? DEFAULT_STORE_CONFIG.deliveryFee)
-                    ,
-                        footerDescription: settingsData.footer_description || 'خدمة توصيل سريعة حتى باب بيتك',
-                        footerAddress: settingsData.footer_address || 'الغراقة، أجا، دقهلية',
-                        footerPhone: settingsData.footer_phone || settingsData.whatsapp || DEFAULT_STORE_CONFIG.whatsapp,
-                        footerWhatsapp: settingsData.footer_whatsapp || settingsData.whatsapp || DEFAULT_STORE_CONFIG.whatsapp,
+                        name: settingsData.name || '',
+                        whatsapp: settingsData.whatsapp || '',
+                        deliveryFee: Number(settingsData.delivery_fee ?? 0),
+                        footerDescription: settingsData.footer_description || '',
+                        footerLogoUrl: settingsData.footer_logo_url || '',
+                        footerBrandName: settingsData.footer_brand_name || '',
+                        footerBrandSubtitle: settingsData.footer_brand_subtitle || '',
+                        footerTagline: settingsData.footer_tagline || '',
+                        footerAddress: settingsData.footer_address || '',
+                        footerPhone: settingsData.footer_phone || '',
+                        footerWhatsapp: settingsData.footer_whatsapp || '',
                         footerFacebook: settingsData.footer_facebook || '',
                         footerInstagram: settingsData.footer_instagram || '',
                         footerTiktok: settingsData.footer_tiktok || '',
-                        footerCopyright: settingsData.footer_copyright || `© 2027 ${settingsData.name || DEFAULT_STORE_CONFIG.name}. جميع الحقوق محفوظة.`,
+                        footerManagementText: settingsData.footer_management_text || '',
+                        footerManagementSubtext: settingsData.footer_management_subtext || '',
+                        footerDesignText: settingsData.footer_design_text || '',
+                        footerDesignerName: settingsData.footer_designer_name || '',
+                        footerCopyright: settingsData.footer_copyright || '',
                         footerEnabled: settingsData.footer_enabled !== false
+                    };
+                } else {
+                    STORE_CONFIG = {
+                        name: '',
+                        whatsapp: '',
+                        deliveryFee: 0,
+                        footerDescription: '',
+                        footerLogoUrl: '',
+                        footerBrandName: '',
+                        footerBrandSubtitle: '',
+                        footerTagline: '',
+                        footerAddress: '',
+                        footerPhone: '',
+                        footerWhatsapp: '',
+                        footerFacebook: '',
+                        footerInstagram: '',
+                        footerTiktok: '',
+                        footerManagementText: '',
+                        footerManagementSubtext: '',
+                        footerDesignText: '',
+                        footerDesignerName: '',
+                        footerCopyright: '',
+                        footerEnabled: true
                     };
                 }
 
@@ -1001,22 +1030,23 @@ products = shuffleArray(products);
 });
 
         function updateStoreInfo() {
-            // Update page title
-            document.title = `${STORE_CONFIG.name} | كل احتياجات بيتك عندنا`;
+            document.title = STORE_CONFIG.name
+                ? `${STORE_CONFIG.name} | كل احتياجات بيتك عندنا`
+                : 'المتجر';
 
-            // Update store name in header
-            const storeNameElements = document.querySelectorAll('.store-name');
-            storeNameElements.forEach(el => {
-                el.textContent = STORE_CONFIG.name;
+            document.querySelectorAll('.store-name').forEach(el => {
+                el.textContent = STORE_CONFIG.name || '';
             });
 
-            // Update WhatsApp link
-            const whatsappLinks = document.querySelectorAll('a[href^="https://wa.me/"]');
-            whatsappLinks.forEach(link => {
-                link.href = `https://wa.me/${STORE_CONFIG.whatsapp}`;
+            document.querySelectorAll('[data-store-tagline]').forEach(el => {
+                el.textContent = STORE_CONFIG.footerTagline || STORE_CONFIG.footerDescription || '';
             });
 
-            // Update footer from Supabase settings
+            document.querySelectorAll('a[href^="https://wa.me/"]').forEach(link => {
+                const digits = String(STORE_CONFIG.whatsapp || '').replace(/\D/g, '');
+                link.href = digits ? `https://wa.me/${digits}` : '#';
+            });
+
             const footer = document.querySelector('footer');
             if (!footer) return;
 
@@ -1027,17 +1057,31 @@ products = shuffleArray(products);
                 if (el) el.textContent = value || '';
             };
 
-            setFooterText('name', STORE_CONFIG.name);
-            setFooterText('description', STORE_CONFIG.footerDescription);
+            setFooterText('brandName', STORE_CONFIG.footerBrandName);
+            setFooterText('brandSubtitle', STORE_CONFIG.footerBrandSubtitle);
+            setFooterText('tagline', STORE_CONFIG.footerTagline || STORE_CONFIG.footerDescription);
             setFooterText('phone', STORE_CONFIG.footerPhone);
             setFooterText('whatsapp', STORE_CONFIG.footerWhatsapp);
             setFooterText('address', STORE_CONFIG.footerAddress);
+            setFooterText('managementText', STORE_CONFIG.footerManagementText);
+            setFooterText('managementSubtext', STORE_CONFIG.footerManagementSubtext);
+            setFooterText('designText', STORE_CONFIG.footerDesignText);
+            setFooterText('designerName', STORE_CONFIG.footerDesignerName);
             setFooterText('copyright', STORE_CONFIG.footerCopyright);
+
+            const footerLogo = footer.querySelector('[data-footer-logo]');
+            if (footerLogo) {
+                footerLogo.src = STORE_CONFIG.footerLogoUrl || '';
+                footerLogo.alt = STORE_CONFIG.footerBrandName || '';
+                footerLogo.classList.toggle('hidden', !STORE_CONFIG.footerLogoUrl);
+            }
 
             const whatsappFooter = footer.querySelector('[data-footer-link="whatsapp"]');
             if (whatsappFooter) {
                 const digits = String(STORE_CONFIG.footerWhatsapp || STORE_CONFIG.whatsapp || '').replace(/\D/g, '');
                 whatsappFooter.href = digits ? `https://wa.me/${digits}` : '#';
+                whatsappFooter.classList.toggle('opacity-40', !digits);
+                whatsappFooter.classList.toggle('pointer-events-none', !digits);
             }
 
             [
@@ -1052,6 +1096,7 @@ products = shuffleArray(products);
                 link.classList.toggle('pointer-events-none', !url);
             });
         }
+
         function renderCategories() {
             const container = document.getElementById('categoriesContainer');
             const categoryList = categories.length ? categories : [{ id: 'all', name: 'الكل', icon: 'fa-border-all' }];
@@ -1263,7 +1308,7 @@ const paginatedProducts = filtered.slice(
                     "${escapeHTML(searchQuery.trim())}"
                 </strong>
                 <br>
-                ممكن تقترحه علينا وإدارة سوبر ماركت حماصة هتراجعه ❤️
+                ممكن تقترحه علينا وإدارة المتجر هتراجعه ❤️
             </p>
 
             <button
@@ -1798,7 +1843,7 @@ if (weights.length) {
 
         descriptionElement.textContent =
             product.description ||
-            'منتج من منتجات سوبر ماركت حماصة.';
+            'منتج من منتجات المتجر.';
 
     }
 
@@ -2679,7 +2724,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // رسالة نجاح
             showAlert(
                 'تم إرسال الاقتراح ❤️',
-                'شكراً ليك! اقتراحك وصل لإدارة سوبر ماركت حماصة وهنراجعه قريبًا.',
+                'شكراً ليك! اقتراحك وصل لإدارة المتجر وهنراجعه قريبًا.',
                 'fa-circle-check',
                 'bg-green-100 text-green-600'
             );
@@ -2864,67 +2909,67 @@ document.addEventListener('DOMContentLoaded', () => {
     <footer class="bg-slate-900 text-white py-8 mt-auto">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
-                <!-- Logo & Brand -->
                 <div class="flex flex-col gap-3">
                     <div class="flex items-center gap-3">
                         <div class="w-10 h-10 rounded-xl overflow-hidden bg-white">
-                            <img src="b36d020d-7393-4c30-a5f5-1825f91dfe10.png" alt="Logo" class="w-full h-full object-cover">
+                            <img data-footer-logo src="" alt="" class="w-full h-full object-cover">
                         </div>
                         <div>
-                            <h3 class="font-extrabold text-lg" data-footer="name">حماصة</h3>
-                            <p class="text-xs text-slate-400">سوبر ماركت</p>
+                            <h3 class="font-extrabold text-lg" data-footer="brandName"></h3>
+                            <p class="text-xs text-slate-400" data-footer="brandSubtitle"></p>
                         </div>
                     </div>
-                    <p class="text-sm text-slate-400" data-footer="description">خدمة توصيل سريعة حتى باب بيتك</p>
+                    <p class="text-sm text-slate-400" data-footer="tagline"></p>
                 </div>
 
-                <!-- Contact Info -->
                 <div class="flex flex-col gap-3">
                     <h4 class="font-bold text-brand-400">تواصل معنا</h4>
                     <div class="flex items-center gap-2 text-sm text-slate-300">
                         <i class="fa-solid fa-phone text-brand-400"></i>
-                        <span data-footer="phone">01144191571</span>
+                        <span data-footer="phone"></span>
                     </div>
                     <div class="flex items-center gap-2 text-sm text-slate-300">
                         <i class="fa-brands fa-whatsapp text-brand-400"></i>
-                        <span data-footer="whatsapp">01144191571</span>
+                        <span data-footer="whatsapp"></span>
                     </div>
                     <div class="flex items-center gap-2 text-sm text-slate-300">
                         <i class="fa-solid fa-location-dot text-brand-400"></i>
-                        <span data-footer="address">الغراقة، أجا، دقهلية</span>
+                        <span data-footer="address"></span>
                     </div>
                 </div>
 
-                <!-- Management -->
                 <div class="flex flex-col gap-3">
                     <h4 class="font-bold text-brand-400">الإدارة</h4>
-                    <p class="text-sm text-slate-300">إدارة محمد عطاء</p>
-                    <p class="text-sm text-slate-400">(حماصة)</p>
+                    <p class="text-sm text-slate-300" data-footer="managementText"></p>
+                    <p class="text-sm text-slate-400" data-footer="managementSubtext"></p>
                 </div>
 
-                <!-- Designer -->
                 <div class="flex flex-col gap-3">
                     <h4 class="font-bold text-brand-400">التصميم</h4>
-                    <p class="text-sm text-slate-300">من تصميم وانشاء</p>
-                    <p class="text-base font-bold text-brand-400">م/محمود محمد البنا</p>
+                    <p class="text-sm text-slate-300" data-footer="designText"></p>
+                    <p class="text-base font-bold text-brand-400" data-footer="designerName"></p>
                     <div class="flex items-center gap-3 mt-2">
-                        <a data-footer-link="whatsapp" href="https://wa.me/201144191571" target="_blank" class="w-10 h-10 bg-brand-600 hover:bg-brand-700 rounded-xl flex items-center justify-center transition-all">
+                        <a data-footer-link="whatsapp" href="#" target="_blank" rel="noopener noreferrer"
+                           class="w-10 h-10 bg-brand-600 hover:bg-brand-700 rounded-xl flex items-center justify-center transition-all">
                             <i class="fa-brands fa-whatsapp text-xl"></i>
                         </a>
-                        <a data-footer-link="facebook" href="#" class="w-10 h-10 bg-slate-700 hover:bg-slate-600 rounded-xl flex items-center justify-center transition-all">
+                        <a data-footer-link="facebook" href="#" target="_blank" rel="noopener noreferrer"
+                           class="w-10 h-10 bg-slate-700 hover:bg-slate-600 rounded-xl flex items-center justify-center transition-all">
                             <i class="fa-brands fa-facebook text-xl"></i>
                         </a>
-                        <a data-footer-link="instagram" href="#" class="w-10 h-10 bg-slate-700 hover:bg-slate-600 rounded-xl flex items-center justify-center transition-all">
+                        <a data-footer-link="instagram" href="#" target="_blank" rel="noopener noreferrer"
+                           class="w-10 h-10 bg-slate-700 hover:bg-slate-600 rounded-xl flex items-center justify-center transition-all">
                             <i class="fa-brands fa-instagram text-xl"></i>
-                        </a> 
-                        <a data-footer-link="tiktok" href="#" class="w-10 h-10 bg-slate-700 hover:bg-slate-600 rounded-xl flex items-center justify-center transition-all">
+                        </a>
+                        <a data-footer-link="tiktok" href="#" target="_blank" rel="noopener noreferrer"
+                           class="w-10 h-10 bg-slate-700 hover:bg-slate-600 rounded-xl flex items-center justify-center transition-all">
                             <i class="fa-brands fa-tiktok text-xl"></i>
                         </a>
                     </div>
                 </div>
             </div>
             <div class="border-t border-slate-800 mt-8 pt-6 text-center">
-                <p class="text-xs text-slate-500" data-footer="copyright">© 2027 سوبر ماركت حماصة. جميع الحقوق محفوظة.</p>
+                <p class="text-xs text-slate-500" data-footer="copyright"></p>
             </div>
         </div>
     </footer>
