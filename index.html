@@ -922,6 +922,16 @@ function shuffleArray(array) {
                         name: settingsData.name || DEFAULT_STORE_CONFIG.name,
                         whatsapp: settingsData.whatsapp || DEFAULT_STORE_CONFIG.whatsapp,
                         deliveryFee: Number(settingsData.delivery_fee ?? DEFAULT_STORE_CONFIG.deliveryFee)
+                    ,
+                        footerDescription: settingsData.footer_description || 'خدمة توصيل سريعة حتى باب بيتك',
+                        footerAddress: settingsData.footer_address || 'الغراقة، أجا، دقهلية',
+                        footerPhone: settingsData.footer_phone || settingsData.whatsapp || DEFAULT_STORE_CONFIG.whatsapp,
+                        footerWhatsapp: settingsData.footer_whatsapp || settingsData.whatsapp || DEFAULT_STORE_CONFIG.whatsapp,
+                        footerFacebook: settingsData.footer_facebook || '',
+                        footerInstagram: settingsData.footer_instagram || '',
+                        footerTiktok: settingsData.footer_tiktok || '',
+                        footerCopyright: settingsData.footer_copyright || `© 2027 ${settingsData.name || DEFAULT_STORE_CONFIG.name}. جميع الحقوق محفوظة.`,
+                        footerEnabled: settingsData.footer_enabled !== false
                     };
                 }
 
@@ -993,20 +1003,55 @@ products = shuffleArray(products);
         function updateStoreInfo() {
             // Update page title
             document.title = `${STORE_CONFIG.name} | كل احتياجات بيتك عندنا`;
-            
+
             // Update store name in header
             const storeNameElements = document.querySelectorAll('.store-name');
             storeNameElements.forEach(el => {
                 el.textContent = STORE_CONFIG.name;
             });
-            
+
             // Update WhatsApp link
             const whatsappLinks = document.querySelectorAll('a[href^="https://wa.me/"]');
             whatsappLinks.forEach(link => {
                 link.href = `https://wa.me/${STORE_CONFIG.whatsapp}`;
             });
-        }
 
+            // Update footer from Supabase settings
+            const footer = document.querySelector('footer');
+            if (!footer) return;
+
+            footer.classList.toggle('hidden', STORE_CONFIG.footerEnabled === false);
+
+            const setFooterText = (key, value) => {
+                const el = footer.querySelector(`[data-footer="${key}"]`);
+                if (el) el.textContent = value || '';
+            };
+
+            setFooterText('name', STORE_CONFIG.name);
+            setFooterText('description', STORE_CONFIG.footerDescription);
+            setFooterText('phone', STORE_CONFIG.footerPhone);
+            setFooterText('whatsapp', STORE_CONFIG.footerWhatsapp);
+            setFooterText('address', STORE_CONFIG.footerAddress);
+            setFooterText('copyright', STORE_CONFIG.footerCopyright);
+
+            const whatsappFooter = footer.querySelector('[data-footer-link="whatsapp"]');
+            if (whatsappFooter) {
+                const digits = String(STORE_CONFIG.footerWhatsapp || STORE_CONFIG.whatsapp || '').replace(/\D/g, '');
+                whatsappFooter.href = digits ? `https://wa.me/${digits}` : '#';
+            }
+
+            [
+                ['facebook', STORE_CONFIG.footerFacebook],
+                ['instagram', STORE_CONFIG.footerInstagram],
+                ['tiktok', STORE_CONFIG.footerTiktok]
+            ].forEach(([platform, url]) => {
+                const link = footer.querySelector(`[data-footer-link="${platform}"]`);
+                if (!link) return;
+                link.href = url || '#';
+                link.classList.toggle('opacity-40', !url);
+                link.classList.toggle('pointer-events-none', !url);
+            });
+        }
         function renderCategories() {
             const container = document.getElementById('categoriesContainer');
             const categoryList = categories.length ? categories : [{ id: 'all', name: 'الكل', icon: 'fa-border-all' }];
@@ -2826,11 +2871,11 @@ document.addEventListener('DOMContentLoaded', () => {
                             <img src="b36d020d-7393-4c30-a5f5-1825f91dfe10.png" alt="Logo" class="w-full h-full object-cover">
                         </div>
                         <div>
-                            <h3 class="font-extrabold text-lg">حماصة</h3>
+                            <h3 class="font-extrabold text-lg" data-footer="name">حماصة</h3>
                             <p class="text-xs text-slate-400">سوبر ماركت</p>
                         </div>
                     </div>
-                    <p class="text-sm text-slate-400">خدمة توصيل سريعة حتى باب بيتك</p>
+                    <p class="text-sm text-slate-400" data-footer="description">خدمة توصيل سريعة حتى باب بيتك</p>
                 </div>
 
                 <!-- Contact Info -->
@@ -2838,15 +2883,15 @@ document.addEventListener('DOMContentLoaded', () => {
                     <h4 class="font-bold text-brand-400">تواصل معنا</h4>
                     <div class="flex items-center gap-2 text-sm text-slate-300">
                         <i class="fa-solid fa-phone text-brand-400"></i>
-                        <span>01144191571</span>
+                        <span data-footer="phone">01144191571</span>
                     </div>
                     <div class="flex items-center gap-2 text-sm text-slate-300">
                         <i class="fa-brands fa-whatsapp text-brand-400"></i>
-                        <span>01144191571</span>
+                        <span data-footer="whatsapp">01144191571</span>
                     </div>
                     <div class="flex items-center gap-2 text-sm text-slate-300">
                         <i class="fa-solid fa-location-dot text-brand-400"></i>
-                        <span>الغراقة، أجا، دقهلية</span>
+                        <span data-footer="address">الغراقة، أجا، دقهلية</span>
                     </div>
                 </div>
 
@@ -2863,20 +2908,23 @@ document.addEventListener('DOMContentLoaded', () => {
                     <p class="text-sm text-slate-300">من تصميم وانشاء</p>
                     <p class="text-base font-bold text-brand-400">م/محمود محمد البنا</p>
                     <div class="flex items-center gap-3 mt-2">
-                        <a href="https://wa.me/201144191571" target="_blank" class="w-10 h-10 bg-brand-600 hover:bg-brand-700 rounded-xl flex items-center justify-center transition-all">
+                        <a data-footer-link="whatsapp" href="https://wa.me/201144191571" target="_blank" class="w-10 h-10 bg-brand-600 hover:bg-brand-700 rounded-xl flex items-center justify-center transition-all">
                             <i class="fa-brands fa-whatsapp text-xl"></i>
                         </a>
-                        <a href="#" class="w-10 h-10 bg-slate-700 hover:bg-slate-600 rounded-xl flex items-center justify-center transition-all">
+                        <a data-footer-link="facebook" href="#" class="w-10 h-10 bg-slate-700 hover:bg-slate-600 rounded-xl flex items-center justify-center transition-all">
                             <i class="fa-brands fa-facebook text-xl"></i>
                         </a>
-                        <a href="#" class="w-10 h-10 bg-slate-700 hover:bg-slate-600 rounded-xl flex items-center justify-center transition-all">
+                        <a data-footer-link="instagram" href="#" class="w-10 h-10 bg-slate-700 hover:bg-slate-600 rounded-xl flex items-center justify-center transition-all">
                             <i class="fa-brands fa-instagram text-xl"></i>
+                        </a> 
+                        <a data-footer-link="tiktok" href="#" class="w-10 h-10 bg-slate-700 hover:bg-slate-600 rounded-xl flex items-center justify-center transition-all">
+                            <i class="fa-brands fa-tiktok text-xl"></i>
                         </a>
                     </div>
                 </div>
             </div>
             <div class="border-t border-slate-800 mt-8 pt-6 text-center">
-                <p class="text-xs text-slate-500">© 2027 سوبر ماركت حماصة. جميع الحقوق محفوظة.</p>
+                <p class="text-xs text-slate-500" data-footer="copyright">© 2027 سوبر ماركت حماصة. جميع الحقوق محفوظة.</p>
             </div>
         </div>
     </footer>
