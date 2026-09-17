@@ -4584,7 +4584,7 @@ html{scroll-behavior:smooth}body{overflow-x:hidden}
    const m=modal('hmProductModal','إدارة المنتج','إضافة منتج أو تعديل البيانات بسهولة','fa-box');const body=$('hmProductModal-body');if(!body.contains(wrap))body.appendChild(wrap);
    wrap.style.display='';
    let bar=$('hmProductBar');if(!bar){bar=document.createElement('div');bar.id='hmProductBar';bar.className='hamasa-enhanced-toolbar';bar.innerHTML=`<div class="hamasa-toolbar-right"><div><div style="font-size:15px;font-weight:900;color:#0f172a">إدارة المنتجات</div><div style="font-size:10px;color:#94a3b8;margin-top:3px">الفورم يفتح عند الإضافة أو التعديل لتبقى الصفحة مرتبة</div></div></div><div class="hamasa-toolbar-left"><button type="button" class="hamasa-primary" id="hmAddProduct"><i class="fa-solid fa-plus"></i> إضافة منتج</button></div>`;(sec.querySelector('.products-list-card')||sec.querySelector('#adminProductsList')?.parentElement)?.insertAdjacentElement('beforebegin',bar);$('hmAddProduct').onclick=()=>{try{window.cancelProductEdit?.()}catch(e){} f.reset();open('hmProductModal');}};
-   if(!body.querySelector('.hm-modal-hint')){const h=document.createElement('div');h.className='hm-modal-hint';h.innerHTML='<i class="fa-solid fa-circle-info ml-1"></i> نفس الحقول ونفس عملية الحفظ الموجودة في الكود الحالي؛ الإضافة هنا فقط لتحسين تجربة الاستخدام.';body.appendChild(h)}
+   
  }
  function setupCategories(){
    const fc=$('categoryFormContainer'),sec=$('admin-section-categories'),list=$('categoriesList');if(!fc||!sec||!list)return;
